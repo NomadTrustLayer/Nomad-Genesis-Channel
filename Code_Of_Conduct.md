@@ -95,7 +95,7 @@ For answers to common questions about this code of conduct, see the FAQ at https
 
 For questions or concerns about this Code of Conduct:
 
-- **Email:** conduct@0l1labs.com
+- **Email:** info@0l1labs.com
 - **GitHub:** Open an issue (for non-sensitive matters)
 
 ---
