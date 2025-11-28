@@ -243,7 +243,7 @@ If you'd like to be credited for your discovery:
 ## Contact
 
 **Security Team:** security@0l1labs.com  
-**General Inquiries:** hello@0l1labs.com  
+**General Inquiries:** info@0l1labs.com  
 **Website:** https://0l1labs.com
 
 ---
