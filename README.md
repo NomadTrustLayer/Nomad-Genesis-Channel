@@ -297,4 +297,4 @@ Welcome to the future of digital trust.
 
 **Built with ❤️ by the 0L1 Labs team**
 
-*For questions, partnerships, or media inquiries: [hello@0l1labs.com](mailto:hello@0l1labs.com)*
+*For questions, partnerships, or media inquiries: [info@0l1labs.com](mailto:info@0l1labs.com)*
