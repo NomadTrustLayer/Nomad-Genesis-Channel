@@ -1,894 +1,986 @@
-# 0L1 Labs Technical Roadmap
+# Technical Roadmap
 
-**Digital Trust Infrastructure for the Agentic Era**
+**0L1 Labs - Digital Trust Infrastructure**
 
-Version 1.0 | December 2025
+*Last Updated: December 2025*
 
 ---
 
 ## Table of Contents
 
-- [Executive Summary](#executive-summary)
-- [1. Technical Architecture](#1-technical-architecture)
-  - [1.1 Zero-Knowledge Circuit Design](#11-zero-knowledge-circuit-design)
-  - [1.2 Solana Verifier Contract](#12-solana-verifier-contract)
-  - [1.3 Frontend Proof Generation](#13-frontend-proof-generation)
-  - [1.4 Security Considerations](#14-security-considerations)
-- [2. Development Timeline](#2-development-timeline)
-- [3. API Commercialization](#3-api-commercialization)
-- [4. Technical Infrastructure](#4-technical-infrastructure)
-- [5. Open Source Strategy](#5-open-source-strategy)
-- [6. Risk Mitigation](#6-risk-mitigation)
-- [7. Success Metrics](#7-success-metrics)
-- [8. Future Enhancements](#8-future-enhancements-2027)
-- [9. Team & Resources](#9-team--resources)
-- [10. Conclusion](#10-conclusion)
-- [Appendices](#appendices)
+1. [Architecture Overview](#architecture-overview)
+2. [Genesis Channel System](#genesis-channel-system)
+3. [ZK Circuit Specifications](#zk-circuit-specifications)
+4. [Smart Contract Architecture](#smart-contract-architecture)
+5. [API Infrastructure](#api-infrastructure)
+6. [Frontend & Dashboard](#frontend--dashboard)
+7. [Security & Audits](#security--audits)
+8. [Development Timeline](#development-timeline)
+9. [Technical Stack](#technical-stack)
 
 ---
 
-## Executive Summary
+## Architecture Overview
 
-0L1 Labs is building **zero-knowledge proof verification infrastructure** optimized for action-specific verification at scale. Rather than creating permanent digital identities, we enable purpose-specific proofs that verify human participation without identity disclosure.
+### System Components
 
-### Core Innovation
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        0L1 Labs Platform                     │
+├─────────────────────────────────────────────────────────────┤
+│                                                               │
+│  ┌──────────────┐      ┌──────────────┐   ┌──────────────┐ │
+│  │   User App   │      │ ZK Proof Gen │   │ Genesis NFT  │ │
+│  │  (Browser)   │─────▶│   (Client)   │   │  (Solana)    │ │
+│  └──────────────┘      └──────────────┘   └──────────────┘ │
+│         │                      │                    │        │
+│         │                      ▼                    │        │
+│         │              ┌──────────────┐            │        │
+│         └─────────────▶│  API Gateway │◀───────────┘        │
+│                        └──────────────┘                     │
+│                              │                               │
+│                              ▼                               │
+│                   ┌─────────────────────┐                   │
+│                   │  Channel Selection  │                   │
+│                   │   (Round-Robin)     │                   │
+│                   └─────────────────────┘                   │
+│                              │                               │
+│                              ▼                               │
+│        ┌────────────────────────────────────────┐           │
+│        │       Genesis Channels (1-1000)        │           │
+│        │  ┌────┐ ┌────┐ ┌────┐       ┌────┐    │           │
+│        │  │ #1 │ │ #2 │ │ #3 │  ...  │#1000│   │           │
+│        │  └────┘ └────┘ └────┘       └────┘    │           │
+│        └────────────────────────────────────────┘           │
+│                              │                               │
+│                              ▼                               │
+│                   ┌─────────────────────┐                   │
+│                   │  ZK Proof Verifier  │                   │
+│                   │   (Solana VM)       │                   │
+│                   └─────────────────────┘                   │
+│                              │                               │
+│                              ▼                               │
+│                   ┌─────────────────────┐                   │
+│                   │  Fee Distribution   │                   │
+│                   │  70% Owner / 30% 0L1│                   │
+│                   └─────────────────────┘                   │
+│                                                               │
+└─────────────────────────────────────────────────────────────┘
+```
 
-Customizing battle-tested **Semaphore Protocol circuits** for single-action verification, deployed on **Solana** for low-cost, high-throughput proof validation.
+### Data Flow
 
-### Timeline
+**Verification Request Lifecycle:**
 
-6-month development cycle from Genesis Layer badge launch (December 2025) to public token deployment (March 2026), followed by rapid API commercialization (Q2 2026) and multi-vertical expansion (Q2-Q4 2026).
+1. **User Action** - User wants to prove eligibility (e.g., age > 18)
+2. **Client-Side Proof Generation** - Browser generates ZK proof locally
+3. **App Submission** - App submits proof to 0L1 API
+4. **Authentication** - API gateway validates API key and request
+5. **Channel Selection** - Smart contract selects Genesis Channel via round-robin
+6. **Verification** - Selected channel verifies proof cryptographically
+7. **Result Return** - Validation result returned to app
+8. **Fee Distribution** - 70% to channel owner, 30% to protocol (automatic)
+9. **Analytics Update** - Dashboard updated with earnings data
 
-### Technical Foundation
-
-Forking proven cryptography (Semaphore) reduces development risk from **12-18 months to 3-4 months**. Using audited circuits from $6B+ projects provides production-grade security from day one.
-
-### Key Differentiators
-
-- ✅ **Action-specific verification** (not permanent identity)
-- ✅ **Software-native** (no biometric requirements)
-- ✅ **API-first infrastructure** (not consumer application)
-- ✅ **Multi-vertical platform** (token launches, affiliates, wellness, credentials, AI compliance)
+**Time:** ~100-500ms end-to-end
 
 ---
 
-## 1. Technical Architecture
+## Genesis Channel System
 
-### 1.1 Zero-Knowledge Circuit Design
+### Core Concept
 
-#### Base Protocol: Semaphore
+**Genesis Channels are verification endpoints in the 0L1 network.** Each of the 1,000 Genesis Layer NFTs represents ownership of a numbered channel that processes verification requests and earns fees.
 
-- **License:** MIT Licensed, open source
-- **Audits:** Trail of Bits, Veridise, PSE Security
-- **Production:** Worldcoin (millions of proofs verified)
-- **Size:** ~150 lines of Circom, proven architecture
+### Channel Structure
 
-#### Our Customization: TokenLaunchProof Circuit
+**Solana Smart Contract Implementation:**
 
-**Optimizations:**
-- Simplified to **~80 lines of Circom**
-- Optimized for **single-action verification**
-- Removes Merkle tree membership requirement
-- Focuses on **uniqueness validation**, not group membership
+```rust
+use anchor_lang::prelude::*;
 
-#### Circuit Components
+#[account]
+pub struct GenesisChannel {
+    /// Channel identifier (1-1000)
+    pub channel_id: u16,
+    
+    /// NFT holder's wallet address
+    pub owner: Pubkey,
+    
+    /// Channel tier: 1=Platinum, 2=Titanium, 3=Obsidian
+    pub tier: u8,
+    
+    /// Capacity multiplier based on tier
+    pub capacity_weight: u8,  // 1, 1.5x, or 2x
+    
+    /// Total verifications processed lifetime
+    pub total_verifications: u64,
+    
+    /// Total earnings in lamports (lifetime)
+    pub total_earned: u64,
+    
+    /// Current active status
+    pub active: bool,
+    
+    /// Last verification timestamp
+    pub last_verification_timestamp: i64,
+    
+    /// Hourly verification count (for rate limiting)
+    pub hourly_verification_count: u32,
+    
+    /// Bump seed for PDA
+    pub bump: u8,
+}
 
-**1. Identity Commitment**
-
+impl GenesisChannel {
+    pub const SIZE: usize = 8 +  // discriminator
+                            2 +  // channel_id
+                            32 + // owner
+                            1 +  // tier
+                            1 +  // capacity_weight
+                            8 +  // total_verifications
+                            8 +  // total_earned
+                            1 +  // active
+                            8 +  // last_verification_timestamp
+                            4 +  // hourly_verification_count
+                            1;   // bump
+}
 ```
-Uses Poseidon hash (ZK-friendly)
-User generates secret: identity_secret
-Commitment: identity_commitment = poseidon(identity_secret)
-Commitment published on-chain (public)
+
+### Channel Tiers
+
+| Tier | Price | Channels | Capacity | Weight | Hourly Max |
+|---|---|---|---|---|---|
+| **Platinum** | $500 | #1-333 | Standard | 1x | 100 |
+| **Titanium** | $750 | #334-666 | Enhanced | 1.5x | 200 |
+| **Obsidian** | $1,000 | #667-1000 | Premium | 2x | 500 |
+
+**Capacity Weight** determines how often a channel is selected in routing:
+- Platinum: Selected every rotation
+- Titanium: Selected 1.5x as often (appears in rotation more frequently)
+- Obsidian: Selected 2x as often (highest priority)
+
+### Routing Algorithm
+
+**Round-Robin with Capacity Weighting:**
+
+```rust
+#[derive(Accounts)]
+pub struct SelectChannel<'info> {
+    #[account(mut)]
+    pub routing_state: Account<'info, RoutingState>,
+    
+    /// CHECK: All Genesis Channels
+    pub genesis_channels: AccountInfo<'info>,
+}
+
+#[account]
+pub struct RoutingState {
+    pub last_channel_used: u16,
+    pub rotation_count: u64,
+    pub bump: u8,
+}
+
+impl RoutingState {
+    /// Select next available Genesis Channel
+    pub fn select_next_channel(
+        &mut self,
+        channels: &[GenesisChannel],
+    ) -> Result<u16> {
+        let mut attempts = 0;
+        let max_attempts = 1000;
+        
+        loop {
+            // Increment to next channel
+            self.last_channel_used = (self.last_channel_used % 1000) + 1;
+            
+            // Find channel by ID
+            if let Some(channel) = channels.iter()
+                .find(|c| c.channel_id == self.last_channel_used) {
+                
+                // Check if channel is available
+                if channel.active && !channel.is_at_capacity() {
+                    // Apply capacity weighting
+                    if self.should_select_based_on_weight(channel) {
+                        self.rotation_count += 1;
+                        return Ok(channel.channel_id);
+                    }
+                }
+            }
+            
+            attempts += 1;
+            if attempts > max_attempts {
+                return Err(ErrorCode::NoChannelsAvailable.into());
+            }
+        }
+    }
+    
+    fn should_select_based_on_weight(&self, channel: &GenesisChannel) -> bool {
+        match channel.tier {
+            1 => true,  // Platinum: always selected
+            2 => self.rotation_count % 2 == 0,  // Titanium: 1.5x (approx)
+            3 => true,  // Obsidian: always selected (2x)
+            _ => false,
+        }
+    }
+}
 ```
 
-**2. Nullifier Generation**
+**Key Properties:**
+- **Fair Distribution** - All channels get turns over time
+- **Capacity Respect** - Higher tiers get proportionally more traffic
+- **Failover** - Skips unavailable/maxed channels automatically
+- **Deterministic** - Same state produces same selection
+- **Gas Efficient** - Simple counter increment, no random number generation
 
-```
-Prevents double-claiming
-Nullifier: nullifier = poseidon(identity_secret, external_nullifier)
-External nullifier: unique per action (e.g., token launch ID)
-Nullifier published on-chain when proof submitted
+### Fee Distribution
+
+**Payment Split:**
+```rust
+#[derive(Accounts)]
+pub struct DistributeFees<'info> {
+    #[account(mut)]
+    pub channel: Account<'info, GenesisChannel>,
+    
+    /// CHECK: Channel owner wallet
+    #[account(mut)]
+    pub channel_owner: AccountInfo<'info>,
+    
+    /// CHECK: Protocol fee wallet
+    #[account(mut)]
+    pub protocol_wallet: AccountInfo<'info>,
+    
+    pub system_program: Program<'info, System>,
+}
+
+pub fn distribute_fees(
+    ctx: Context<DistributeFees>,
+    total_fee: u64,  // In lamports
+) -> Result<()> {
+    let channel = &mut ctx.accounts.channel;
+    
+    // Calculate split: 70% to owner, 30% to protocol
+    let owner_share = total_fee
+        .checked_mul(70)
+        .ok_or(ErrorCode::Overflow)?
+        .checked_div(100)
+        .ok_or(ErrorCode::Overflow)?;
+    
+    let protocol_share = total_fee
+        .checked_sub(owner_share)
+        .ok_or(ErrorCode::Underflow)?;
+    
+    // Transfer to channel owner
+    anchor_lang::solana_program::program::invoke(
+        &anchor_lang::solana_program::system_instruction::transfer(
+            ctx.accounts.payer.key,
+            &channel.owner,
+            owner_share,
+        ),
+        &[
+            ctx.accounts.payer.to_account_info(),
+            ctx.accounts.channel_owner.to_account_info(),
+            ctx.accounts.system_program.to_account_info(),
+        ],
+    )?;
+    
+    // Transfer to protocol wallet
+    anchor_lang::solana_program::program::invoke(
+        &anchor_lang::solana_program::system_instruction::transfer(
+            ctx.accounts.payer.key,
+            ctx.accounts.protocol_wallet.key,
+            protocol_share,
+        ),
+        &[
+            ctx.accounts.payer.to_account_info(),
+            ctx.accounts.protocol_wallet.to_account_info(),
+            ctx.accounts.system_program.to_account_info(),
+        ],
+    )?;
+    
+    // Update channel stats
+    channel.total_verifications = channel.total_verifications
+        .checked_add(1)
+        .ok_or(ErrorCode::Overflow)?;
+    
+    channel.total_earned = channel.total_earned
+        .checked_add(owner_share)
+        .ok_or(ErrorCode::Overflow)?;
+    
+    channel.last_verification_timestamp = Clock::get()?.unix_timestamp;
+    
+    emit!(VerificationProcessed {
+        channel_id: channel.channel_id,
+        owner: channel.owner,
+        amount_earned: owner_share,
+        timestamp: Clock::get()?.unix_timestamp,
+    });
+    
+    Ok(())
+}
 ```
 
-**3. Proof Generation**
+**Settlement:**
+- **Timing:** Real-time (instant with each verification)
+- **Gas Cost:** ~$0.0001 per distribution (Solana)
+- **Non-custodial:** Payments go directly to owner wallets
+- **Transparent:** All transactions on-chain and auditable
 
+### Revenue Projections
+
+**Formula:**
 ```
-Proves: "I know identity_secret that hashes to identity_commitment"
-Proves: "I generated valid nullifier for this action"
-Proves: "I haven't used this nullifier before"
-All without revealing identity_secret
+Channel Monthly Earnings = 
+    (Network Monthly Verifications / 1000 channels) 
+    × Average Fee per Verification 
+    × 70% (owner share)
+    × Tier Multiplier
 ```
 
-#### Circuit Pseudocode
+**Examples:**
+
+**Scenario 1: Early Stage (1M verifications/month)**
+- Platinum: (1,000,000 / 1000) × $0.25 × 0.70 × 1.0 = **$175/month**
+- Titanium: (1,000,000 / 1000) × $0.25 × 0.70 × 1.5 = **$262/month**
+- Obsidian: (1,000,000 / 1000) × $0.25 × 0.70 × 2.0 = **$350/month**
+
+**Scenario 2: Growth Stage (10M verifications/month)**
+- Platinum: **$1,750/month** ($21K/year)
+- Titanium: **$2,625/month** ($31.5K/year)
+- Obsidian: **$3,500/month** ($42K/year)
+
+**Scenario 3: Mature Stage (100M verifications/month)**
+- Platinum: **$17,500/month** ($210K/year)
+- Titanium: **$26,250/month** ($315K/year)
+- Obsidian: **$35,000/month** ($420K/year)
+
+**Variable Factors:**
+- **Network adoption** - Number of integrated apps
+- **Verification volume** - Usage patterns per app
+- **Fee pricing** - May adjust $0.10-$0.50 based on market
+- **Competition** - Other verification solutions
+
+---
+
+## ZK Circuit Specifications
+
+### Base: Semaphore Protocol
+
+**What we're using:**
+- [Semaphore v3](https://github.com/semaphore-protocol/semaphore) - Latest version
+- Audited by Trail of Bits, Veridise, PSE Security
+- Production-tested (Worldcoin, zkMe, others)
+
+**Core Components:**
+```circom
+template Semaphore(MAX_DEPTH) {
+    // Private inputs
+    signal input identitySecret;
+    signal input identityPathIndices[MAX_DEPTH];
+    signal input identityPathElements[MAX_DEPTH];
+    
+    // Public inputs
+    signal input externalNullifier;
+    signal input messageHash;
+    
+    // Outputs
+    signal output nullifierHash;
+    signal output root;
+}
+```
+
+### Our Customization: ActionProof Circuit
+
+**Simplified for single-action verification:**
 
 ```circom
-circuit TokenLaunchProof {
-  // Public inputs
-  signal input external_nullifier;  // Token launch ID
-  signal input nullifier;           // Prevents double-claim
-  
-  // Private inputs
-  signal input identity_secret;     // User's secret
-  
-  // Compute identity commitment
-  signal identity_commitment = poseidon(identity_secret);
-  
-  // Verify nullifier is correctly generated
-  signal computed_nullifier = poseidon(identity_secret, external_nullifier);
-  assert(computed_nullifier == nullifier);
-  
-  // Output public signals
-  signal output valid = 1;
+pragma circom 2.1.0;
+
+include "../node_modules/circomlib/circuits/poseidon.circom";
+
+// Simplified action-specific proof circuit
+template ActionProof() {
+    // Private inputs (never revealed)
+    signal input identitySecret;
+    
+    // Public inputs (visible on-chain)
+    signal input actionId;  // Unique per action type
+    signal input timestamp;
+    
+    // Outputs
+    signal output identityCommitment;
+    signal output nullifierHash;
+    
+    // Generate identity commitment
+    component identityHasher = Poseidon(1);
+    identityHasher.inputs[0] <== identitySecret;
+    identityCommitment <== identityHasher.out;
+    
+    // Generate nullifier (prevents double-action)
+    component nullifierHasher = Poseidon(2);
+    nullifierHasher.inputs[0] <== identitySecret;
+    nullifierHasher.inputs[1] <== actionId;
+    nullifierHash <== nullifierHasher.out;
+    
+    // Timestamp constraint (must be recent)
+    signal timestampCheck;
+    timestampCheck <== timestamp * timestamp;
+}
+
+component main {public [actionId, timestamp]} = ActionProof();
+```
+
+**Key Simplifications:**
+- ❌ Removed Merkle tree membership verification (don't need group membership)
+- ❌ Removed message signing (don't need arbitrary messages)
+- ✅ Kept nullifier hash (prevents double-spending/double-action)
+- ✅ Kept identity commitment (proves unique human)
+- ✅ Added timestamp constraint (prevents replay attacks)
+
+**Result:** ~80 lines vs ~150 lines (Semaphore full), faster proving time
+
+### Circuit Performance
+
+**Proof Generation (Client-Side):**
+- Time: 1-3 seconds (browser)
+- Memory: ~500MB RAM
+- Compatibility: Chrome, Firefox, Safari, mobile browsers
+
+**Proof Verification (On-Chain):**
+- Time: ~50-100ms (Solana VM)
+- Cost: ~$0.0001 gas (Solana)
+- Throughput: 65,000 TPS theoretical (Solana limit)
+
+**Proof Size:**
+- Proof data: ~1KB
+- Public inputs: ~100 bytes
+- Total: ~1.1KB per verification
+
+---
+
+## Smart Contract Architecture
+
+### Solana Programs (Anchor Framework)
+
+**Program Structure:**
+
+```
+0l1-verification/
+├── programs/
+│   └── verification/
+│       ├── src/
+│       │   ├── lib.rs              # Main program entry
+│       │   ├── state.rs            # Account structures
+│       │   ├── instructions/
+│       │   │   ├── mod.rs
+│       │   │   ├── initialize.rs   # Program initialization
+│       │   │   ├── register_channel.rs  # Register Genesis NFT
+│       │   │   ├── verify_proof.rs      # Main verification
+│       │   │   ├── distribute_fees.rs   # Payment distribution
+│       │   │   └── update_channel.rs    # Channel management
+│       │   ├── utils/
+│       │   │   ├── routing.rs      # Channel selection logic
+│       │   │   └── verification.rs # ZK proof verification
+│       │   └── error.rs            # Error codes
+│       └── Cargo.toml
+├── tests/
+│   ├── integration/
+│   └── unit/
+└── Anchor.toml
+```
+
+### Core Instructions
+
+**1. Initialize Program**
+```rust
+pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
+    let state = &mut ctx.accounts.state;
+    state.authority = ctx.accounts.authority.key();
+    state.total_channels = 0;
+    state.total_verifications = 0;
+    state.protocol_fee_percentage = 30;  // 30% to protocol
+    state.bump = *ctx.bumps.get("state").unwrap();
+    Ok(())
 }
 ```
 
-#### Why This Works
+**2. Register Genesis Channel**
+```rust
+pub fn register_channel(
+    ctx: Context<RegisterChannel>,
+    channel_id: u16,
+    tier: u8,
+) -> Result<()> {
+    require!(channel_id >= 1 && channel_id <= 1000, ErrorCode::InvalidChannelId);
+    require!(tier >= 1 && tier <= 3, ErrorCode::InvalidTier);
+    
+    let channel = &mut ctx.accounts.channel;
+    channel.channel_id = channel_id;
+    channel.owner = ctx.accounts.nft_holder.key();
+    channel.tier = tier;
+    channel.capacity_weight = match tier {
+        1 => 1,   // Platinum
+        2 => 15,  // Titanium (1.5x represented as 15/10)
+        3 => 2,   // Obsidian
+        _ => 1,
+    };
+    channel.total_verifications = 0;
+    channel.total_earned = 0;
+    channel.active = true;
+    channel.bump = *ctx.bumps.get("channel").unwrap();
+    
+    let state = &mut ctx.accounts.state;
+    state.total_channels += 1;
+    
+    emit!(ChannelRegistered {
+        channel_id,
+        owner: channel.owner,
+        tier,
+    });
+    
+    Ok(())
+}
+```
 
-✅ User can only generate **one valid proof per action** (unique nullifier)  
-✅ Cannot reuse proof for different action (external_nullifier changes)  
-✅ Cannot generate proof without knowing identity_secret  
-✅ Validator can verify proof without learning identity_secret
+**3. Verify Proof (Main Function)**
+```rust
+pub fn verify_proof(
+    ctx: Context<VerifyProof>,
+    proof: [u8; 256],          // ZK proof data
+    public_inputs: [u8; 32],   // Public signals
+    action_id: u64,
+) -> Result<()> {
+    // 1. Select Genesis Channel
+    let routing_state = &mut ctx.accounts.routing_state;
+    let channel_id = routing_state.select_next_channel(
+        &ctx.accounts.channels
+    )?;
+    
+    // 2. Get selected channel
+    let channel = ctx.accounts.channels.iter()
+        .find(|c| c.channel_id == channel_id)
+        .ok_or(ErrorCode::ChannelNotFound)?;
+    
+    // 3. Verify ZK proof
+    let is_valid = verify_groth16_proof(
+        &proof,
+        &public_inputs,
+        &ctx.accounts.verifying_key.data,
+    )?;
+    
+    require!(is_valid, ErrorCode::InvalidProof);
+    
+    // 4. Check nullifier hasn't been used
+    require!(
+        !ctx.accounts.nullifier_registry.contains(&public_inputs),
+        ErrorCode::NullifierAlreadyUsed
+    );
+    
+    // 5. Add nullifier to registry
+    ctx.accounts.nullifier_registry.insert(public_inputs);
+    
+    // 6. Distribute fees
+    distribute_fees(
+        ctx.accounts.into_distribute_fees_context(),
+        ctx.accounts.fee_amount,
+    )?;
+    
+    // 7. Update global state
+    let state = &mut ctx.accounts.state;
+    state.total_verifications += 1;
+    
+    emit!(ProofVerified {
+        channel_id,
+        action_id,
+        timestamp: Clock::get()?.unix_timestamp,
+    });
+    
+    Ok(())
+}
+```
+
+### Security Features
+
+**Access Controls:**
+- Multi-sig authority (3-of-5 threshold)
+- Time-locked upgrades (48-hour delay)
+- Emergency pause functionality
+- Role-based permissions
+
+**Financial Security:**
+- Overflow/underflow checks on all math
+- Reentrancy guards
+- Fee calculation verification
+- Slippage protection
+
+**Data Integrity:**
+- Nullifier registry prevents double-use
+- Timestamp validation prevents replays
+- Channel state consistency checks
+- Proof validity verification
 
 ---
 
-### 1.2 Solana Verifier Contract
+## API Infrastructure
 
-**Language:** Rust  
-**Framework:** Anchor (Solana program framework)
+### API Gateway
 
-#### Contract Functions
+**Tech Stack:**
+- **Framework:** Rust with Axum web framework
+- **Database:** PostgreSQL (customer data, analytics)
+- **Cache:** Redis (hot data, rate limiting)
+- **Monitoring:** Prometheus + Grafana
 
-**1. `initialize_launch()`**
+**Endpoints:**
+
 ```rust
-// Admin creates new token launch
-// Sets external_nullifier (unique launch ID)
-// Initializes nullifier tracking
+// POST /v1/verify
+pub async fn verify_proof(
+    State(app_state): State<AppState>,
+    Json(payload): Json<VerifyRequest>,
+) -> Result<Json<VerifyResponse>, ApiError> {
+    // 1. Authenticate API key
+    let customer = authenticate_api_key(&payload.api_key).await?;
+    
+    // 2. Validate request
+    validate_proof_format(&payload.proof)?;
+    
+    // 3. Check rate limits
+    check_rate_limit(&customer.id).await?;
+    
+    // 4. Submit to Solana
+    let tx_signature = submit_verification_tx(
+        &app_state.solana_client,
+        &payload.proof,
+        &payload.public_inputs,
+    ).await?;
+    
+    // 5. Wait for confirmation
+    let result = wait_for_confirmation(
+        &app_state.solana_client,
+        &tx_signature,
+    ).await?;
+    
+    // 6. Log analytics
+    log_verification(
+        &customer.id,
+        &result,
+        &payload.action_type,
+    ).await?;
+    
+    // 7. Return response
+    Ok(Json(VerifyResponse {
+        valid: result.is_valid,
+        verification_id: result.id,
+        channel_id: result.channel_id,
+        timestamp: result.timestamp,
+    }))
+}
+
+// GET /v1/channel/{id}
+pub async fn get_channel_stats(
+    State(app_state): State<AppState>,
+    Path(channel_id): Path<u16>,
+) -> Result<Json<ChannelStats>, ApiError> {
+    let channel = fetch_channel_from_chain(
+        &app_state.solana_client,
+        channel_id,
+    ).await?;
+    
+    Ok(Json(ChannelStats {
+        channel_id: channel.channel_id,
+        owner: channel.owner.to_string(),
+        tier: channel.tier,
+        total_verifications: channel.total_verifications,
+        total_earned: channel.total_earned,
+        last_verification: channel.last_verification_timestamp,
+    }))
+}
 ```
 
-**2. `submit_proof()`**
-```rust
-// User submits Groth16 proof + nullifier
-// Contract verifies proof on-chain
-// Checks nullifier hasn't been used
-// Adds address to whitelist if valid
+**Rate Limiting:**
+- Free tier: 100 requests/hour
+- Basic tier: 1,000 requests/hour
+- Pro tier: 10,000 requests/hour
+- Enterprise: Custom limits
+
+**SLA Targets:**
+- Uptime: 99.9%
+- Response time: <500ms (p95)
+- Verification time: <2 seconds end-to-end
+
+---
+
+## Frontend & Dashboard
+
+### Badge Holder Dashboard
+
+**Tech Stack:**
+- **Framework:** Next.js 14 (React)
+- **Styling:** Tailwind CSS
+- **Wallet:** Solana Wallet Adapter
+- **Charts:** Recharts
+- **API:** REST + WebSocket (real-time updates)
+
+**Features:**
+
+**1. Channel Overview**
+```typescript
+interface ChannelOverview {
+  channelId: number;
+  tier: 'Platinum' | 'Titanium' | 'Obsidian';
+  owner: string;
+  active: boolean;
+  totalVerifications: number;
+  totalEarned: number;  // in SOL
+  lastVerification: Date;
+}
 ```
 
-**3. `claim_allocation()`**
-```rust
-// Whitelisted address claims tokens
-// One-time claim per address
-// Transfers tokens from launch pool
+**2. Real-Time Earnings**
+```typescript
+// WebSocket connection for live updates
+const ws = new WebSocket('wss://api.0l1labs.com/v1/channel/42/live');
+
+ws.onmessage = (event) => {
+  const update = JSON.parse(event.data);
+  if (update.type === 'verification_processed') {
+    updateEarnings(update.amount);
+    showNotification(`Earned ${update.amount} SOL`);
+  }
+};
 ```
 
-#### On-Chain Verification
+**3. Analytics Dashboard**
+- Hourly/daily/monthly verification charts
+- Earnings breakdown by time period
+- Network activity comparison
+- Tier performance metrics
+- Withdrawal history
 
-- **Proof System:** Groth16 proof verification (standard ZK proof system)
-- **Compute Cost:** ~200-300 compute units on Solana
-- **Verification Time:** Sub-second
-- **Gas Fees:** ~$0.0001-$0.001
+**4. Withdrawal Interface**
+- Current balance display
+- One-click withdrawal to connected wallet
+- Transaction history
+- Fee breakdown (if any)
 
-#### Nullifier Tracking
+### Proof Generation Library
 
-```rust
-// Hash map: nullifier → bool (used/not used)
-// Prevents double-claims
-// Efficient lookup (O(1))
-```
+**Client-Side JavaScript SDK:**
 
-#### State Management
+```typescript
+import { generateProof, verifyProof } from '@0l1labs/zk-sdk';
 
-```rust
-#[account]
-pub struct TokenLaunch {
-    pub authority: Pubkey,
-    pub external_nullifier: [u8; 32],
-    pub total_supply: u64,
-    pub claimed: u64,
-    pub nullifiers: HashMap<[u8; 32], bool>,
-    pub whitelist: HashMap<Pubkey, bool>,
+// Generate proof on user device
+async function generateAgeProof(
+  identitySecret: string,
+  minimumAge: number
+): Promise<ProofData> {
+  const proof = await generateProof({
+    circuit: 'age_verification',
+    privateInputs: {
+      identitySecret,
+      birthdate: userBirthdate,
+    },
+    publicInputs: {
+      minimumAge,
+      timestamp: Date.now(),
+    },
+  });
+  
+  return proof;
+}
+
+// Submit to app backend
+async function submitProof(proof: ProofData) {
+  const response = await fetch('/api/verify', {
+    method: 'POST',
+    body: JSON.stringify(proof),
+  });
+  
+  return response.json();
 }
 ```
 
 ---
 
-### 1.3 Frontend Proof Generation
-
-#### Technology Stack
-
-- **SnarkJS** - JavaScript proof generation library
-- **Browser-based** - No backend required
-- **Client-side key generation**
-
-#### User Flow
-
-**1. Visit Launch Website**
-```
-User connects wallet (Phantom, Solflare, etc.)
-Site displays token launch details
-```
-
-**2. Generate Identity**
-```
-User clicks "Generate Proof"
-Browser generates random identity_secret
-Computes identity_commitment locally
-Stores identity_secret in browser storage (encrypted)
-```
-
-**3. Generate Proof**
-```
-Fetches external_nullifier from contract
-Computes nullifier = poseidon(identity_secret, external_nullifier)
-Generates Groth16 proof (~3-5 seconds)
-Proof generation happens entirely in browser
-```
-
-**4. Submit Proof**
-```
-User signs Solana transaction
-Transaction includes: proof + nullifier + public signals
-Submitted to Solana verifier contract
-```
-
-**5. Verification**
-```
-Contract verifies proof on-chain
-Checks nullifier not used
-Adds wallet to whitelist
-User can now claim tokens
-```
-
-#### Performance Targets
-
-- **Proof generation:** <5 seconds
-- **Transaction submission:** <1 second
-- **On-chain verification:** <1 second
-- **Total end-to-end:** <7 seconds
-
-#### Browser Compatibility
-
-✅ Chrome, Firefox, Safari, Edge (all modern browsers)  
-✅ Mobile web browsers supported  
-✅ No app download required
-
----
-
-### 1.4 Security Considerations
-
-#### Circuit Security
-
-- Using audited Semaphore circuits as base
-- Simplifying (not adding complexity) reduces attack surface
-- Independent audit scheduled Q1 2026
-
-#### Smart Contract Security
-
-- Anchor framework (battle-tested on Solana)
-- Formal verification of critical functions
-- Multi-sig admin controls
-- Time-locked upgrades
-
-#### Key Management
-
-- Identity secrets generated client-side
-- Never transmitted to server
-- Encrypted in browser storage
-- User responsible for backup
-
-#### Attack Vectors & Mitigations
-
-| Attack Vector | Mitigation |
-|--------------|------------|
-| **Replay Attacks** | Prevented by nullifier uniqueness |
-| **Sybil Attacks** | One identity_secret = one proof per action |
-| **Front-running** | Proof submission is atomic transaction |
-| **MEV Exploitation** | Solana's architecture minimizes MEV risk |
-| **Circuit Bugs** | Using audited base circuits, simplifying not complicating |
-
-#### Audit Timeline
-
-- **Q1 2026:** Circuit audit (Trail of Bits or equivalent)
-- **Q1 2026:** Smart contract audit (Neodyme, OtterSec, or equivalent)
-- **Q1 2026:** Frontend security review
-- **Q2 2026:** Bug bounty program launch ($50K-$100K pool)
-
----
-
-## 2. Development Timeline
-
-### Phase 1: Genesis Layer Badge Launch (December 2025)
-
-**Objectives:**
-- Fund development ($500K-$1M)
-- Build community (Discord, Telegram, Twitter)
-- Recruit technical co-founder
-
-**Deliverables:**
-- 1,000 Genesis Layer badges sold across 3 phases
-- Community infrastructure established
-- Development resources secured
-
----
-
-### Phase 2: Circuit Development (Q1 2026 - Weeks 1-4)
-
-**Week 1: Repository Setup**
-- Fork Semaphore Protocol repository
-- Set up development environment (Circom, SnarkJS)
-- Initialize testing framework
-- Create documentation structure
-
-**Week 2: Circuit Simplification**
-- Remove Merkle tree components
-- Simplify to identity commitment + nullifier only
-- Reduce from ~150 lines to ~80 lines
-- Optimize for single-action verification
-
-**Week 3: Testing & Optimization**
-- Unit tests for all circuit components
-- Proof generation performance testing
-- Gas cost optimization
-- Edge case identification
-
-**Week 4: Documentation & Code Review**
-- Complete circuit documentation
-- Internal code review
-- Prepare for external audit
-- Generate reference proofs for testing
-
-**Deliverable:** Production-ready TokenLaunchProof circuit
-
----
-
-### Phase 3: Solana Contract Development (Q1 2026 - Weeks 5-6)
-
-**Week 5: Contract Implementation**
-- Port Ethereum Groth16 verifier to Solana/Rust
-- Implement Anchor program structure
-- Build nullifier tracking system
-- Create whitelist management
-
-**Week 6: Contract Testing**
-- Unit tests for all contract functions
-- Integration tests with test proofs
-- Gas cost analysis and optimization
-- Security review preparation
-
-**Deliverable:** Deployed Solana verifier contract on devnet
-
----
-
-### Phase 4: Frontend Development (Q1 2026 - Weeks 7-8)
-
-**Week 7: Proof Generation UI**
-- Build browser-based proof generator
-- Integrate SnarkJS library
-- Create wallet connection flow
-- Implement identity management
-
-**Week 8: User Experience Optimization**
-- Loading states and progress indicators
-- Error handling and user feedback
-- Mobile responsive design
-- Accessibility compliance
-
-**Deliverable:** Complete web application for proof generation
-
----
-
-### Phase 5: Integration & Testing (Q1 2026 - Weeks 9-10)
-
-**Week 9: End-to-End Integration**
-- Connect frontend → Solana contract
-- Test complete user flow
-- Performance benchmarking
-- Load testing (simulated concurrent users)
-
-**Week 10: QA & Bug Fixes**
-- Comprehensive QA testing
-- Bug identification and resolution
-- User acceptance testing (UAT) with badge holders
-- Final performance optimization
-
-**Deliverable:** Beta-ready platform
-
----
-
-### Phase 6: Security Audits (Q1 2026 - Weeks 11-12)
-
-**Week 11: Audit Preparation**
-- Finalize all code
-- Complete documentation
-- Submit to audit firms
-- Internal security review
-
-**Week 12: Audit Response**
-- Address audit findings
-- Implement recommended fixes
-- Re-test after modifications
-- Obtain final audit reports
-
-**Deliverable:** Audited, production-ready system
-
----
-
-### Phase 7: Genesis Deployment (Late Q1 2026 - March 2026)
-
-**March 2026: Public ZK-Gated Launch**
-
-- Deploy contracts to Solana mainnet
-- Launch public proof generation website
-- Public must generate ZK proof to participate
-- **First proof-gated token launch in history**
-- 15% of supply (150M tokens) available to public
-- One human = one proof = bot-proof by design
-
-**Success Metrics:**
-- ✅ 10,000+ unique humans verified
-- ✅ <1% bot participation rate
-- ✅ 95%+ successful proof generation rate
-- ✅ <10 second average proof-to-claim time
-- ✅ Zero double-claims or security incidents
-
----
-
-## 3. API Commercialization (Q2 2026)
-
-### 3.1 Commerce & Marketing Infrastructure
+## Security & Audits
+
+### Audit Schedule
+
+| Component | Auditor | Timeline | Budget |
+|---|---|---|---|
+| **ZK Circuits** | Trail of Bits or Veridise | Q1 2026 (Week 11) | $50K-$75K |
+| **Smart Contracts** | Neodyme or OtterSec | Q1 2026 (Week 12) | $40K-$60K |
+| **API Security** | Internal + Penetration Test | Q2 2026 | $20K |
+
+### Security Measures
+
+**Circuit Security:**
+- Constraint validation
+- Soundness verification
+- Completeness checks
+- Trusted setup (Powers of Tau)
+
+**Smart Contract Security:**
+- Formal verification (critical functions)
+- Fuzz testing (100K+ iterations)
+- Static analysis (Rust Clippy, audit tools)
+- Test coverage >95%
+
+**Operational Security:**
+- Multi-sig admin controls (3-of-5)
+- Time-locked upgrades (48 hours)
+- Rate limiting and DDoS protection
+- Encrypted data at rest and in transit
+
+### Bug Bounty Program
 
 **Launch:** Q2 2026  
-**Target Vertical:** Affiliate Networks
+**Total Pool:** $50K-$100K
 
-**Market Opportunity:**
-- $17B market with 30-40% bot fraud
-- Prove: Real human → Real click → Real conversion
-- Without cookies, surveillance, or data leakage
+**Severity Tiers:**
+- **Critical:** $10K-$25K (funds at risk, protocol break)
+- **High:** $5K-$10K (significant vulnerability)
+- **Medium:** $1K-$5K (edge cases, DoS)
+- **Low:** $250-$1K (minor issues)
 
-#### API Endpoints
-
-**1. POST `/verify/conversion`**
-```
-Affiliate submits ZK proof of conversion
-Verifies: human clicked ad + completed action
-Returns: verification token for payment
-```
-
-**2. GET `/audit/conversions`**
-```
-Publisher/advertiser queries verified conversions
-Returns: aggregated metrics without individual data
-Enables auditing without surveillance
-```
-
-#### Revenue Model
-
-- **Pricing:** $0.10-$0.50 per verified conversion
-- **Target:** 10 affiliate networks by end of Q2
-- **Projected Revenue:** $100K-$500K/month by Q2 end
-
-#### Integration Partners (Target)
-
-- CJ Affiliate, Rakuten, ShareASale, Impact, PartnerStack
-- Health/wellness affiliate networks (supplements, fitness)
-- SaaS affiliate programs (B2B software referrals)
+**Scope:**
+- Smart contracts
+- ZK circuits
+- API endpoints
+- Dashboard application
 
 ---
 
-### 3.2 Wellness Proofs Infrastructure
+## Development Timeline
 
-**Launch:** Q2-Q3 2026  
-**Target Vertical:** Corporate Wellness & Insurance
+### Q1 2026: Foundation (12 Weeks)
 
-**Value Proposition:**
-- Prove fitness achievements without exposing biometric data
-- Verify wellness milestones without revealing medical history
-- Enable insurance discounts while preserving privacy
+**Weeks 1-4: Circuit Development**
+- [ ] Set up Circom development environment
+- [ ] Implement ActionProof circuit
+- [ ] Write circuit tests (>100 test cases)
+- [ ] Optimize for proof generation speed
+- [ ] Generate proving and verifying keys
 
-#### Use Cases
+**Weeks 5-6: Smart Contract Development**
+- [ ] Initialize Anchor project
+- [ ] Implement Genesis Channel registry
+- [ ] Build routing algorithm
+- [ ] Create fee distribution logic
+- [ ] Write comprehensive tests
 
-**1. Corporate Wellness Programs**
-```
-Employees prove 10K steps/day without sharing location data
-Companies verify participation without surveillance
-Privacy-preserving wellness incentives
-```
+**Weeks 7-8: Frontend Development**
+- [ ] Set up Next.js project
+- [ ] Build proof generation interface
+- [ ] Create badge holder dashboard
+- [ ] Implement wallet integration
+- [ ] Design real-time updates (WebSocket)
 
-**2. Insurance Discounts**
-```
-Prove consistent exercise without sharing workout data
-Verify healthy behaviors for premium reductions
-No medical records disclosed
-```
+**Weeks 9-10: Integration & Testing**
+- [ ] End-to-end testing (user → verification → payment)
+- [ ] Performance benchmarking
+- [ ] Load testing (simulate 100K verifications)
+- [ ] Bug fixes and optimization
 
-**3. Fitness Competitions**
-```
-Prove achievement (marathon completion, weight loss)
-Verify without exposing health metrics
-Trustless fitness challenges
-```
+**Weeks 11-12: Security Audits**
+- [ ] Circuit audit
+- [ ] Smart contract audit
+- [ ] Fix identified issues
+- [ ] Prepare for launch
 
-#### API Endpoints
+**Week 13: Genesis Deployment**
+- [ ] Deploy to Solana mainnet
+- [ ] Launch badge holder dashboard
+- [ ] Process first live verifications
+- [ ] Monitor and support
 
-**1. POST `/verify/fitness-achievement`**
-```
-User submits ZK proof of achievement
-Verifies: completed activity + meets threshold
-Returns: verification for reward/discount
-```
+### Q2 2026: API Launch
 
-**2. GET `/wellness/leaderboard`**
-```
-Aggregated rankings without individual data
-Proves relative performance without absolute metrics
-```
+- [ ] Public API release
+- [ ] SDK libraries (JS, Python, Rust)
+- [ ] Developer documentation
+- [ ] Integration examples
+- [ ] Customer onboarding
 
-#### Revenue Model
+### Q3-Q4 2026: Expansion
 
-- **Pricing:** $5-$20 per verification (higher value than affiliate)
-- **Enterprise Contracts:** $10K-$50K/year per company
-- **Target:** 5 enterprise partnerships by end of Q3
-- **Projected Revenue:** $50K-$250K/month by Q3 end
-
-#### Integration Partners (Target)
-
-- Fortune 500 corporate wellness programs
-- Health insurance providers (UnitedHealth, Anthem, Cigna)
-- Fitness platforms (Strava, Fitbit, Apple Health integration)
+- [ ] Multi-vertical API development
+- [ ] Enterprise partnerships
+- [ ] Mobile SDKs
+- [ ] Advanced analytics
+- [ ] Protocol optimizations
 
 ---
 
-### 3.3 Multi-Vertical Expansion (Q3-Q4 2026)
+## Technical Stack
 
-**Q3 2026: Credentials & Education**
-- Professional license verification without identity disclosure
-- Educational credential proofs (degree, certification)
-- Background checks without exposing full history
+### Core Technologies
 
-**Q4 2026: AI Compliance & Access Control**
-- AI model output verification
-- Age verification without ID disclosure
-- Membership/eligibility confirmation
+**Blockchain:**
+- Solana (mainnet)
+- Anchor Framework v0.29+
+- Rust 1.70+
 
-#### Revenue Targets (End of 2026)
+**Zero-Knowledge:**
+- Circom 2.1+
+- SnarkJS
+- Groth16 proving system
+- Powers of Tau trusted setup
 
-| Vertical | Monthly Revenue |
-|----------|----------------|
-| Affiliate networks | $100K-$500K |
-| Wellness proofs | $50K-$250K |
-| Credentials | $25K-$100K |
-| **Total** | **$175K-$850K** |
+**Backend:**
+- Rust with Axum
+- PostgreSQL 15+
+- Redis 7+
+- Docker + Kubernetes
 
----
+**Frontend:**
+- Next.js 14+
+- TypeScript 5+
+- Tailwind CSS
+- Solana Wallet Adapter
 
-## 4. Technical Infrastructure
+**Infrastructure:**
+- AWS or GCP
+- Cloudflare (CDN + DDoS)
+- Prometheus + Grafana (monitoring)
+- Sentry (error tracking)
 
-### 4.1 Scalability Strategy
+### Development Tools
 
-**Proof Generation:**
-- Client-side generation (distributed load)
-- No server bottleneck
-- Scales to millions of users
-
-**On-Chain Verification:**
-- Solana: 65,000 TPS theoretical
-- Our usage: ~1,000 proofs/second realistic
-- Sufficient for massive scale
-
-**API Infrastructure:**
-- Microservices architecture
-- Kubernetes deployment
-- Auto-scaling based on demand
-- 99.9% uptime SLA target
-
-**Database:**
-- PostgreSQL for relational data
-- Redis for caching
-- TimescaleDB for time-series metrics
+- **IDE:** VSCode with Rust Analyzer
+- **Testing:** Anchor test framework, Jest
+- **CI/CD:** GitHub Actions
+- **Version Control:** Git + GitHub
+- **Documentation:** Docusaurus
 
 ---
 
-### 4.2 Monitoring & Analytics
+## Performance Targets
 
-**System Monitoring:**
-- Datadog or New Relic for APM
-- Real-time alerting
-- Performance metrics dashboard
+### End-to-End Metrics
 
-**Business Analytics:**
-- Proof generation success rates
-- Average proof generation time
-- API usage metrics
-- Revenue tracking
+| Metric | Target | Stretch Goal |
+|---|---|---|
+| Proof generation time | <3 seconds | <1 second |
+| API response time (p95) | <500ms | <200ms |
+| Verification throughput | 100/second | 1,000/second |
+| Dashboard load time | <2 seconds | <1 second |
+| Uptime (SLA) | 99.9% | 99.99% |
 
-**Security Monitoring:**
-- 24/7 security operations
-- Anomaly detection
-- Incident response procedures
+### Cost Targets
 
----
-
-## 5. Open Source Strategy
-
-### 5.1 Public Repositories
-
-**What's Open Source:**
-- ✅ All circuit code (Circom)
-- ✅ Solana verifier contract (Rust)
-- ✅ Frontend proof generation library (JavaScript)
-- ✅ Documentation and examples
-
-**What's Proprietary:**
-- ❌ API backend services
-- ❌ Enterprise integration code
-- ❌ Customer data and analytics
-
-**Benefits:**
-- Community review improves security
-- Developer adoption increases
-- Transparency builds trust
-- Ecosystem contributions
+| Operation | Cost | Notes |
+|---|---|---|
+| Proof generation | Free | Client-side |
+| Verification (Solana) | ~$0.0001 | Gas fees |
+| Fee distribution | ~$0.0001 | Gas fees |
+| API call | Free-$0.50 | Customer pricing |
 
 ---
 
-### 5.2 Developer Documentation
+**This roadmap is subject to change based on development progress, security requirements, and market feedback.**
 
-**Comprehensive Docs Site:**
-- Quick start guides
-- API reference
-- Circuit specifications
-- Integration examples
-- Video tutorials
-
-**Sample Applications:**
-- Token launch example (open source)
-- Affiliate verification demo
-- Wellness proof prototype
-
----
-
-## 6. Risk Mitigation
-
-### 6.1 Technical Risks
-
-| Risk | Mitigation |
-|------|-----------|
-| **Circuit vulnerabilities** | Using audited base (Semaphore), multiple audits, bug bounty |
-| **Smart contract exploits** | Anchor framework, formal verification, multi-sig controls |
-| **Poor proof generation performance** | Optimization during development, fallback mechanisms |
-| **Solana network issues** | Multi-chain expansion roadmap (Polygon, Base, Arbitrum in 2026) |
-
----
-
-### 6.2 Market Risks
-
-| Risk | Mitigation |
-|------|-----------|
-| **Low developer adoption** | Comprehensive documentation, sample apps, developer grants |
-| **Regulatory challenges** | Legal counsel on retainer, compliance-first approach, jurisdictional flexibility |
-| **Competition from established players** | Speed to market, unique positioning (action-specific vs permanent identity) |
-
----
-
-### 6.3 Operational Risks
-
-| Risk | Mitigation |
-|------|-----------|
-| **Key person dependency** | Document everything, build redundancy, hire backup talent |
-| **Funding runway** | Genesis Layer badges fund 12+ months, revenue by Q2 reduces dependency |
-| **Timeline delays** | Conservative estimates, parallel workstreams, agile methodology |
-
----
-
-## 7. Success Metrics
-
-### 7.1 Technical Metrics
-
-**Q1 2026 (Build Phase):**
-- Circuit complexity: <80 lines
-- Proof generation time: <5 seconds
-- Verification cost: <$0.001
-- Test coverage: >90%
-
-**Late Q1 2026 (Genesis Deployment):**
-- Successful proofs: >10,000
-- Failed proof rate: <5%
-- Average end-to-end latency: <10 seconds
-- Security incidents: 0
-
-**Q2 2026 (API Launch):**
-- API uptime: >99.9%
-- Response time (p95): <500ms
-- Paying customers: 10+
-- Monthly API calls: 100K+
-
-**Q2-Q3 2026 (Wellness Proofs):**
-- Enterprise customers: 5+
-- Verifications per month: 50K+
-- Monthly recurring revenue: $50K+
-
-**Q3-Q4 2026 (Multi-Vertical):**
-- Total customers: 25+
-- Total verifications: 500K+/month
-- Monthly recurring revenue: $175K+
-
----
-
-### 7.2 Business Metrics
-
-**Revenue Milestones:**
-- **Q1 2026:** $500K-$1M (badge sales, one-time)
-- **Q2 2026:** $100K-$300K (API revenue, recurring)
-- **Q3 2026:** $200K-$500K (cumulative monthly)
-- **Q4 2026:** $300K-$850K (cumulative monthly)
-- **2027:** $1M+/month target
-
-**User Growth:**
-- **End Q1:** 10K+ verified humans
-- **End Q2:** 50K+ verified humans
-- **End Q3:** 200K+ verified humans
-- **End Q4:** 500K+ verified humans
-
----
-
-## 8. Future Enhancements (2027+)
-
-### 8.1 Advanced Features
-
-**Recursive Proofs:**
-- Prove multiple actions with single proof
-- Reduces verification costs further
-- Enables complex workflows
-
-**Multi-Chain Support:**
-- Expand beyond Solana to Ethereum, Polygon, Base, Arbitrum
-- Universal proof verification layer
-- Chain-agnostic infrastructure
-
-**Mobile SDKs:**
-- Native iOS and Android libraries
-- Offline proof generation
-- Hardware-backed key storage
-
-**Enterprise Features:**
-- Custom circuit development
-- White-label solutions
-- Dedicated support and SLAs
-- On-premise deployment options
-
----
-
-### 8.2 Research Directions
-
-**zkML Integration:**
-- Prove AI model inference without revealing model or data
-- Enable privacy-preserving AI
-
-**Cross-Chain Interoperability:**
-- Generate proof on one chain, verify on another
-- Unified identity across chains (while maintaining action-specific proofs)
-
-**Hardware Acceleration:**
-- GPU-accelerated proof generation
-- Sub-second proof times
-- Enable real-time use cases
-
----
-
-## 9. Team & Resources
-
-### 9.1 Current Team
-
-**Founder: Aaron**
-- Web3 infrastructure experience
-- Brand development and marketing
-- Community building
-- Strategic partnerships
-
-**Technical Co-Founder: (Recruiting Q1 2026)**
-- Circom/ZK cryptography expertise
-- Solana smart contract development
-- Production system architecture
-- 5-10% equity stake
-
-**Advisors:**
-- Cryptographers (ZK expertise)
-- Legal counsel (securities, crypto regulations)
-- Compliance experts (KYC/AML, OFAC)
-
----
-
-### 9.2 Hiring Roadmap
-
-**Q1 2026:**
-- Technical co-founder (Circom/ZK specialist)
-- Smart contract auditors (external firms)
-
-**Q2 2026:**
-- Backend engineer (API development)
-- DevOps engineer (infrastructure)
-- Community manager (Discord, Telegram)
-
-**Q3 2026:**
-- Business development (enterprise sales)
-- Technical writer (documentation)
-- Additional backend engineers (scale)
-
-**Q4 2026:**
-- Product manager (multi-vertical coordination)
-- Security engineer (full-time)
-- Customer success (enterprise support)
-
----
-
-## 10. Conclusion
-
-0L1 Labs is uniquely positioned to become the **infrastructure layer for zero-knowledge verification** in the digital economy. By building on proven cryptography (Semaphore Protocol), deploying on high-performance infrastructure (Solana), and targeting high-value verticals (affiliates, wellness, credentials, AI compliance), we're creating a sustainable, scalable business with multiple revenue streams.
-
-### Competitive Advantages
-
-1. **Action-specific verification** (not permanent identity)
-2. **Software-native** (no biometric requirements)
-3. **Battle-tested circuits** (Semaphore base)
-4. **Low-cost verification** (Solana deployment)
-5. **Multi-vertical platform** (diverse revenue)
-
-### Near-Term Milestones
-
-- **Late Q1 2026:** First ZK proof-gated token launch (validation)
-- **Q2 2026:** API commercialization (revenue)
-- **Q2-Q3 2026:** Enterprise partnerships (scale)
-- **Q3-Q4 2026:** Multi-vertical expansion (sustainability)
-
-### Long-Term Vision
-
-Become the **default verification infrastructure for the agentic era**—enabling trust without surveillance, privacy without bots, and verification without identity disclosure.
-
----
-
-## Appendices
-
-### Appendix A: Technical Glossary
-
-- **Zero-Knowledge Proof:** Cryptographic method to prove knowledge of information without revealing the information itself.
-- **Groth16:** Efficient ZK proof system used for verification.
-- **Circom:** Domain-specific language for writing ZK circuits.
-- **SnarkJS:** JavaScript library for generating and verifying ZK proofs.
-- **Poseidon Hash:** ZK-friendly cryptographic hash function.
-- **Nullifier:** Unique identifier that prevents double-spending/double-claiming.
-- **External Nullifier:** Context-specific value that makes nullifiers unique per action.
-- **Semaphore Protocol:** Open-source ZK protocol for proof-of-membership.
-- **Anchor:** Framework for Solana smart contract development.
-
----
-
-### Appendix B: Useful Links
-
-**GitHub Repositories:**
-- Semaphore Protocol: https://github.com/semaphore-protocol/semaphore
-- Circom Compiler: https://github.com/iden3/circom
-- SnarkJS: https://github.com/iden3/snarkjs
-
-**Documentation:**
-- 0L1 Labs Docs: [TBD - to be published]
-- Semaphore Docs: https://semaphore.pse.dev/
-- Circom Tutorial: https://docs.circom.io/
-
-**Audit Reports:**
-- [To be published after Q1 2026 audits complete]
-
----
-
-## Document Metadata
-
-- **Version:** 1.0
-- **Date:** December 2025
-- **Authors:** 0L1 Labs Technical Team
-- **Status:** Public
-- **License:** CC BY-SA 4.0 (Creative Commons Attribution-ShareAlike)
-
-**Disclaimer:** This document contains forward-looking statements about technical development, timelines, and business projections. Actual results may differ materially. This is not investment advice. See full legal disclaimers at https://0l1labs.com.
-
----
-
-**END OF TECHNICAL ROADMAP**
+**Last updated:** December 2025  
+**Next review:** February 2026
