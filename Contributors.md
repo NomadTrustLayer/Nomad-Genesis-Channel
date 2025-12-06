@@ -14,7 +14,7 @@ Thank you to everyone who has contributed to 0L1 Labs! 🎉
 - Twitter: [@your-twitter]
 
 **[Technical Co-Founder]** - CTO *(Recruiting Q1 2026)*  
-*Circom/ZK cryptography, Solana smart contracts, system architecture*
+*Circom/ZK cryptography, Base smart contracts, system architecture*
 
 ---
 
@@ -56,7 +56,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for how to contribute.
 ### Inspiration & Foundation
 
 - **Semaphore Protocol Team** - For the audited ZK circuits we build upon
-- **Solana Foundation** - For the high-performance blockchain infrastructure
+- **Ethereum Foundation** - For the high-performance blockchain infrastructure
 - **Worldcoin** - For proving Semaphore at scale
 - **ZK Community** - For advancing zero-knowledge cryptography
 
