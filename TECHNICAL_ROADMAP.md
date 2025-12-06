@@ -31,7 +31,7 @@
 │                                                               │
 │  ┌──────────────┐      ┌──────────────┐   ┌──────────────┐ │
 │  │   User App   │      │ ZK Proof Gen │   │ Genesis NFT  │ │
-│  │  (Browser)   │─────▶│   (Client)   │   │  (Solana)    │ │
+│  │  (Browser)   │─────▶│   (Client)   │   │   (Base)     │ │
 │  └──────────────┘      └──────────────┘   └──────────────┘ │
 │         │                      │                    │        │
 │         │                      ▼                    │        │
@@ -56,7 +56,7 @@
 │                              ▼                               │
 │                   ┌─────────────────────┐                   │
 │                   │  ZK Proof Verifier  │                   │
-│                   │   (Solana VM)       │                   │
+│                   │     (Base EVM)      │                   │
 │                   └─────────────────────┘                   │
 │                              │                               │
 │                              ▼                               │
@@ -94,56 +94,41 @@
 
 ### Channel Structure
 
-**Solana Smart Contract Implementation:**
+**Base Smart Contract Implementation:**
 
-```rust
-use anchor_lang::prelude::*;
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
 
-#[account]
-pub struct GenesisChannel {
+/// @title GenesisChannel
+/// @notice Represents a single verification channel in the 0L1 network
+struct GenesisChannel {
     /// Channel identifier (1-1000)
-    pub channel_id: u16,
+    uint16 channelId;
     
     /// NFT holder's wallet address
-    pub owner: Pubkey,
+    address owner;
     
     /// Channel tier: 1=Platinum, 2=Titanium, 3=Obsidian
-    pub tier: u8,
+    uint8 tier;
     
-    /// Capacity multiplier based on tier
-    pub capacity_weight: u8,  // 1, 1.5x, or 2x
+    /// Capacity multiplier based on tier (10=1.0x, 15=1.5x, 20=2.0x)
+    uint8 capacityWeight;
     
     /// Total verifications processed lifetime
-    pub total_verifications: u64,
+    uint64 totalVerifications;
     
-    /// Total earnings in lamports (lifetime)
-    pub total_earned: u64,
+    /// Total earnings in wei (lifetime)
+    uint256 totalEarned;
     
     /// Current active status
-    pub active: bool,
+    bool active;
     
     /// Last verification timestamp
-    pub last_verification_timestamp: i64,
+    uint256 lastVerificationTimestamp;
     
     /// Hourly verification count (for rate limiting)
-    pub hourly_verification_count: u32,
-    
-    /// Bump seed for PDA
-    pub bump: u8,
-}
-
-impl GenesisChannel {
-    pub const SIZE: usize = 8 +  // discriminator
-                            2 +  // channel_id
-                            32 + // owner
-                            1 +  // tier
-                            1 +  // capacity_weight
-                            8 +  // total_verifications
-                            8 +  // total_earned
-                            1 +  // active
-                            8 +  // last_verification_timestamp
-                            4 +  // hourly_verification_count
-                            1;   // bump
+    uint32 hourlyVerificationCount;
 }
 ```
 
@@ -164,64 +149,71 @@ impl GenesisChannel {
 
 **Round-Robin with Capacity Weighting:**
 
-```rust
-#[derive(Accounts)]
-pub struct SelectChannel<'info> {
-    #[account(mut)]
-    pub routing_state: Account<'info, RoutingState>,
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract ChannelRouter {
+    uint16 public lastChannelUsed;
+    uint64 public rotationCount;
     
-    /// CHECK: All Genesis Channels
-    pub genesis_channels: AccountInfo<'info>,
-}
-
-#[account]
-pub struct RoutingState {
-    pub last_channel_used: u16,
-    pub rotation_count: u64,
-    pub bump: u8,
-}
-
-impl RoutingState {
-    /// Select next available Genesis Channel
-    pub fn select_next_channel(
-        &mut self,
-        channels: &[GenesisChannel],
-    ) -> Result<u16> {
-        let mut attempts = 0;
-        let max_attempts = 1000;
+    mapping(uint16 => GenesisChannel) public channels;
+    
+    event ChannelSelected(uint16 indexed channelId, uint64 rotationCount);
+    
+    /// @notice Select next available Genesis Channel
+    /// @return channelId The selected channel ID
+    function selectNextChannel() external returns (uint16) {
+        uint16 attempts = 0;
+        uint16 maxAttempts = 1000;
         
-        loop {
-            // Increment to next channel
-            self.last_channel_used = (self.last_channel_used % 1000) + 1;
+        while (attempts < maxAttempts) {
+            // Increment to next channel (1-1000)
+            lastChannelUsed = (lastChannelUsed % 1000) + 1;
             
-            // Find channel by ID
-            if let Some(channel) = channels.iter()
-                .find(|c| c.channel_id == self.last_channel_used) {
-                
-                // Check if channel is available
-                if channel.active && !channel.is_at_capacity() {
-                    // Apply capacity weighting
-                    if self.should_select_based_on_weight(channel) {
-                        self.rotation_count += 1;
-                        return Ok(channel.channel_id);
-                    }
+            GenesisChannel memory channel = channels[lastChannelUsed];
+            
+            // Check if channel is available
+            if (channel.active && !isAtCapacity(channel)) {
+                // Apply capacity weighting
+                if (shouldSelectBasedOnWeight(channel)) {
+                    rotationCount++;
+                    emit ChannelSelected(lastChannelUsed, rotationCount);
+                    return lastChannelUsed;
                 }
             }
             
-            attempts += 1;
-            if attempts > max_attempts {
-                return Err(ErrorCode::NoChannelsAvailable.into());
-            }
+            attempts++;
         }
+        
+        revert("No channels available");
     }
     
-    fn should_select_based_on_weight(&self, channel: &GenesisChannel) -> bool {
-        match channel.tier {
-            1 => true,  // Platinum: always selected
-            2 => self.rotation_count % 2 == 0,  // Titanium: 1.5x (approx)
-            3 => true,  // Obsidian: always selected (2x)
-            _ => false,
+    /// @notice Check if channel is at hourly capacity
+    function isAtCapacity(GenesisChannel memory channel) 
+        internal 
+        view 
+        returns (bool) 
+    {
+        if (block.timestamp - channel.lastVerificationTimestamp > 1 hours) {
+            return false;  // Hour has reset
         }
+        
+        uint32 maxHourly = channel.tier == 1 ? 100 : 
+                          (channel.tier == 2 ? 200 : 500);
+        return channel.hourlyVerificationCount >= maxHourly;
+    }
+    
+    /// @notice Determine if channel should be selected based on tier weight
+    function shouldSelectBasedOnWeight(GenesisChannel memory channel) 
+        internal 
+        view 
+        returns (bool) 
+    {
+        if (channel.tier == 1) return true;  // Platinum: always selected
+        if (channel.tier == 2) return rotationCount % 2 == 0;  // Titanium: ~1.5x
+        if (channel.tier == 3) return true;  // Obsidian: always selected (2x)
+        return false;
     }
 }
 ```
@@ -236,473 +228,389 @@ impl RoutingState {
 ### Fee Distribution
 
 **Payment Split:**
-```rust
-#[derive(Accounts)]
-pub struct DistributeFees<'info> {
-    #[account(mut)]
-    pub channel: Account<'info, GenesisChannel>,
-    
-    /// CHECK: Channel owner wallet
-    #[account(mut)]
-    pub channel_owner: AccountInfo<'info>,
-    
-    /// CHECK: Protocol fee wallet
-    #[account(mut)]
-    pub protocol_wallet: AccountInfo<'info>,
-    
-    pub system_program: Program<'info, System>,
-}
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
 
-pub fn distribute_fees(
-    ctx: Context<DistributeFees>,
-    total_fee: u64,  // In lamports
-) -> Result<()> {
-    let channel = &mut ctx.accounts.channel;
+contract FeeDistributor {
+    uint256 public constant OWNER_SHARE = 70;  // 70%
+    uint256 public constant PROTOCOL_SHARE = 30;  // 30%
     
-    // Calculate split: 70% to owner, 30% to protocol
-    let owner_share = total_fee
-        .checked_mul(70)
-        .ok_or(ErrorCode::Overflow)?
-        .checked_div(100)
-        .ok_or(ErrorCode::Overflow)?;
+    address public protocolWallet;
+    mapping(uint16 => GenesisChannel) public channels;
     
-    let protocol_share = total_fee
-        .checked_sub(owner_share)
-        .ok_or(ErrorCode::Underflow)?;
+    event FeesDistributed(
+        uint16 indexed channelId,
+        address indexed channelOwner,
+        uint256 ownerAmount,
+        uint256 protocolAmount
+    );
     
-    // Transfer to channel owner
-    anchor_lang::solana_program::program::invoke(
-        &anchor_lang::solana_program::system_instruction::transfer(
-            ctx.accounts.payer.key,
-            &channel.owner,
-            owner_share,
-        ),
-        &[
-            ctx.accounts.payer.to_account_info(),
-            ctx.accounts.channel_owner.to_account_info(),
-            ctx.accounts.system_program.to_account_info(),
-        ],
-    )?;
-    
-    // Transfer to protocol wallet
-    anchor_lang::solana_program::program::invoke(
-        &anchor_lang::solana_program::system_instruction::transfer(
-            ctx.accounts.payer.key,
-            ctx.accounts.protocol_wallet.key,
-            protocol_share,
-        ),
-        &[
-            ctx.accounts.payer.to_account_info(),
-            ctx.accounts.protocol_wallet.to_account_info(),
-            ctx.accounts.system_program.to_account_info(),
-        ],
-    )?;
-    
-    // Update channel stats
-    channel.total_verifications = channel.total_verifications
-        .checked_add(1)
-        .ok_or(ErrorCode::Overflow)?;
-    
-    channel.total_earned = channel.total_earned
-        .checked_add(owner_share)
-        .ok_or(ErrorCode::Overflow)?;
-    
-    channel.last_verification_timestamp = Clock::get()?.unix_timestamp;
-    
-    emit!(VerificationProcessed {
-        channel_id: channel.channel_id,
-        owner: channel.owner,
-        amount_earned: owner_share,
-        timestamp: Clock::get()?.unix_timestamp,
-    });
-    
-    Ok(())
+    /// @notice Distribute verification fee between owner and protocol
+    function distributeFees(uint16 channelId) external payable {
+        GenesisChannel memory channel = channels[channelId];
+        require(channel.active, "Channel not active");
+        
+        uint256 totalFee = msg.value;
+        
+        // Calculate split (70/30)
+        uint256 ownerShare = (totalFee * OWNER_SHARE) / 100;
+        uint256 protocolFee = totalFee - ownerShare;
+        
+        // Transfer to channel owner
+        (bool ownerSuccess, ) = channel.owner.call{value: ownerShare}("");
+        require(ownerSuccess, "Owner transfer failed");
+        
+        // Transfer to protocol wallet
+        (bool protocolSuccess, ) = protocolWallet.call{value: protocolFee}("");
+        require(protocolSuccess, "Protocol transfer failed");
+        
+        // Update channel earnings tracking
+        channels[channelId].totalEarned += ownerShare;
+        
+        emit FeesDistributed(channelId, channel.owner, ownerShare, protocolFee);
+    }
 }
 ```
 
-**Settlement:**
-- **Timing:** Real-time (instant with each verification)
-- **Gas Cost:** ~$0.0001 per distribution (Solana)
-- **Non-custodial:** Payments go directly to owner wallets
-- **Transparent:** All transactions on-chain and auditable
-
-### Revenue Projections
-
-**Formula:**
-```
-Channel Monthly Earnings = 
-    (Network Monthly Verifications / 1000 channels) 
-    × Average Fee per Verification 
-    × 70% (owner share)
-    × Tier Multiplier
-```
-
-**Examples:**
-
-**Scenario 1: Early Stage (1M verifications/month)**
-- Platinum: (1,000,000 / 1000) × $0.25 × 0.70 × 1.0 = **$175/month**
-- Titanium: (1,000,000 / 1000) × $0.25 × 0.70 × 1.5 = **$262/month**
-- Obsidian: (1,000,000 / 1000) × $0.25 × 0.70 × 2.0 = **$350/month**
-
-**Scenario 2: Growth Stage (10M verifications/month)**
-- Platinum: **$1,750/month** ($21K/year)
-- Titanium: **$2,625/month** ($31.5K/year)
-- Obsidian: **$3,500/month** ($42K/year)
-
-**Scenario 3: Mature Stage (100M verifications/month)**
-- Platinum: **$17,500/month** ($210K/year)
-- Titanium: **$26,250/month** ($315K/year)
-- Obsidian: **$35,000/month** ($420K/year)
-
-**Variable Factors:**
-- **Network adoption** - Number of integrated apps
-- **Verification volume** - Usage patterns per app
-- **Fee pricing** - May adjust $0.10-$0.50 based on market
-- **Competition** - Other verification solutions
+**Fee Structure:**
+- **Standard Verification:** 0.001 ETH (~$2-3 on Base)
+- **Owner Receives:** 0.0007 ETH (70%)
+- **Protocol Receives:** 0.0003 ETH (30%)
+- **Gas Cost:** ~0.0001-0.0005 ETH (Base L2 fees)
 
 ---
 
 ## ZK Circuit Specifications
 
-### Base: Semaphore Protocol
+### Circuit Architecture
 
-**What we're using:**
-- [Semaphore v3](https://github.com/semaphore-protocol/semaphore) - Latest version
-- Audited by Trail of Bits, Veridise, PSE Security
-- Production-tested (Worldcoin, zkMe, others)
-
-**Core Components:**
-```circom
-template Semaphore(MAX_DEPTH) {
-    // Private inputs
-    signal input identitySecret;
-    signal input identityPathIndices[MAX_DEPTH];
-    signal input identityPathElements[MAX_DEPTH];
-    
-    // Public inputs
-    signal input externalNullifier;
-    signal input messageHash;
-    
-    // Outputs
-    signal output nullifierHash;
-    signal output root;
-}
-```
-
-### Our Customization: ActionProof Circuit
-
-**Simplified for single-action verification:**
+**Based on Semaphore Protocol, customized for action-specific verification:**
 
 ```circom
 pragma circom 2.1.0;
 
-include "../node_modules/circomlib/circuits/poseidon.circom";
+include "circomlib/circuits/poseidon.circom";
 
-// Simplified action-specific proof circuit
 template ActionProof() {
     // Private inputs (never revealed)
     signal input identitySecret;
+    signal input actionId;
     
-    // Public inputs (visible on-chain)
-    signal input actionId;  // Unique per action type
-    signal input timestamp;
-    
-    // Outputs
+    // Public outputs (posted on-chain)
     signal output identityCommitment;
-    signal output nullifierHash;
+    signal output actionNullifier;
     
     // Generate identity commitment
     component identityHasher = Poseidon(1);
     identityHasher.inputs[0] <== identitySecret;
     identityCommitment <== identityHasher.out;
     
-    // Generate nullifier (prevents double-action)
+    // Generate action nullifier (prevents double-claims)
     component nullifierHasher = Poseidon(2);
     nullifierHasher.inputs[0] <== identitySecret;
     nullifierHasher.inputs[1] <== actionId;
-    nullifierHash <== nullifierHasher.out;
-    
-    // Timestamp constraint (must be recent)
-    signal timestampCheck;
-    timestampCheck <== timestamp * timestamp;
+    actionNullifier <== nullifierHasher.out;
 }
 
-component main {public [actionId, timestamp]} = ActionProof();
+component main {public [actionId]} = ActionProof();
 ```
 
-**Key Simplifications:**
-- ❌ Removed Merkle tree membership verification (don't need group membership)
-- ❌ Removed message signing (don't need arbitrary messages)
-- ✅ Kept nullifier hash (prevents double-spending/double-action)
-- ✅ Kept identity commitment (proves unique human)
-- ✅ Added timestamp constraint (prevents replay attacks)
+### Circuit Properties
 
-**Result:** ~80 lines vs ~150 lines (Semaphore full), faster proving time
+**Complexity:**
+- **Constraints:** ~1,200 (2x Poseidon hash operations)
+- **Proof Generation Time:** ~2 seconds (client-side, browser)
+- **Proof Size:** 256 bytes (Groth16)
+- **Verification Gas:** ~250,000 gas (~$0.50 on Base)
 
-### Circuit Performance
+**Security:**
+- **Soundness:** Attacker cannot forge proof without identitySecret
+- **Privacy:** identitySecret never revealed, only commitment posted
+- **Uniqueness:** Same person + same action = same nullifier = rejected
+- **Unlinkability:** Different actions produce different nullifiers
 
-**Proof Generation (Client-Side):**
-- Time: 1-3 seconds (browser)
-- Memory: ~500MB RAM
-- Compatibility: Chrome, Firefox, Safari, mobile browsers
+### Proof Generation Flow
 
-**Proof Verification (On-Chain):**
-- Time: ~50-100ms (Solana VM)
-- Cost: ~$0.0001 gas (Solana)
-- Throughput: 65,000 TPS theoretical (Solana limit)
+**Client-Side (JavaScript/Browser):**
 
-**Proof Size:**
-- Proof data: ~1KB
-- Public inputs: ~100 bytes
-- Total: ~1.1KB per verification
+```javascript
+import { groth16 } from "snarkjs";
+
+async function generateActionProof(identitySecret, actionId) {
+    // Prepare circuit inputs
+    const inputs = {
+        identitySecret: identitySecret,
+        actionId: actionId
+    };
+    
+    // Generate witness
+    const { proof, publicSignals } = await groth16.fullProve(
+        inputs,
+        "circuits/action_proof.wasm",
+        "circuits/action_proof_final.zkey"
+    );
+    
+    // Extract public outputs
+    const identityCommitment = publicSignals[0];
+    const actionNullifier = publicSignals[1];
+    
+    return {
+        proof,
+        identityCommitment,
+        actionNullifier
+    };
+}
+```
+
+**On-Chain Verification (Solidity):**
+
+```solidity
+interface IVerifier {
+    function verifyProof(
+        uint256[2] calldata _pA,
+        uint256[2][2] calldata _pB,
+        uint256[2] calldata _pC,
+        uint256[2] calldata _pubSignals
+    ) external view returns (bool);
+}
+
+contract ProofValidator {
+    IVerifier public verifier;
+    mapping(uint256 => bool) public nullifierUsed;
+    
+    function validateAction(
+        uint256[8] calldata proof,
+        uint256 actionId,
+        uint256 identityCommitment,
+        uint256 actionNullifier
+    ) external returns (bool) {
+        // Check nullifier hasn't been used
+        require(!nullifierUsed[actionNullifier], "Action already claimed");
+        
+        // Verify ZK proof
+        bool isValid = verifier.verifyProof(
+            [proof[0], proof[1]],
+            [[proof[2], proof[3]], [proof[4], proof[5]]],
+            [proof[6], proof[7]],
+            [actionId, identityCommitment, actionNullifier]
+        );
+        
+        require(isValid, "Invalid proof");
+        
+        // Mark nullifier as used
+        nullifierUsed[actionNullifier] = true;
+        
+        return true;
+    }
+}
+```
 
 ---
 
 ## Smart Contract Architecture
 
-### Solana Programs (Anchor Framework)
+### Core Contracts
 
-**Program Structure:**
+**1. GenesisChannelRegistry.sol** - Manages all 1,000 channels
 
-```
-0l1-verification/
-├── programs/
-│   └── verification/
-│       ├── src/
-│       │   ├── lib.rs              # Main program entry
-│       │   ├── state.rs            # Account structures
-│       │   ├── instructions/
-│       │   │   ├── mod.rs
-│       │   │   ├── initialize.rs   # Program initialization
-│       │   │   ├── register_channel.rs  # Register Genesis NFT
-│       │   │   ├── verify_proof.rs      # Main verification
-│       │   │   ├── distribute_fees.rs   # Payment distribution
-│       │   │   └── update_channel.rs    # Channel management
-│       │   ├── utils/
-│       │   │   ├── routing.rs      # Channel selection logic
-│       │   │   └── verification.rs # ZK proof verification
-│       │   └── error.rs            # Error codes
-│       └── Cargo.toml
-├── tests/
-│   ├── integration/
-│   └── unit/
-└── Anchor.toml
-```
-
-### Core Instructions
-
-**1. Initialize Program**
-```rust
-pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-    let state = &mut ctx.accounts.state;
-    state.authority = ctx.accounts.authority.key();
-    state.total_channels = 0;
-    state.total_verifications = 0;
-    state.protocol_fee_percentage = 30;  // 30% to protocol
-    state.bump = *ctx.bumps.get("state").unwrap();
-    Ok(())
+```solidity
+contract GenesisChannelRegistry {
+    mapping(uint16 => GenesisChannel) public channels;
+    uint16 public constant TOTAL_CHANNELS = 1000;
+    
+    event ChannelRegistered(uint16 indexed channelId, address indexed owner);
+    event ChannelTransferred(uint16 indexed channelId, address from, address to);
+    
+    function registerChannel(
+        uint16 channelId, 
+        address owner, 
+        uint8 tier
+    ) external onlyOwner {
+        require(channelId > 0 && channelId <= TOTAL_CHANNELS);
+        require(channels[channelId].owner == address(0), "Already registered");
+        
+        channels[channelId] = GenesisChannel({
+            channelId: channelId,
+            owner: owner,
+            tier: tier,
+            capacityWeight: tier == 1 ? 10 : (tier == 2 ? 15 : 20),
+            totalVerifications: 0,
+            totalEarned: 0,
+            active: true,
+            lastVerificationTimestamp: 0,
+            hourlyVerificationCount: 0
+        });
+        
+        emit ChannelRegistered(channelId, owner);
+    }
 }
 ```
 
-**2. Register Genesis Channel**
-```rust
-pub fn register_channel(
-    ctx: Context<RegisterChannel>,
-    channel_id: u16,
-    tier: u8,
-) -> Result<()> {
-    require!(channel_id >= 1 && channel_id <= 1000, ErrorCode::InvalidChannelId);
-    require!(tier >= 1 && tier <= 3, ErrorCode::InvalidTier);
+**2. VerificationRouter.sol** - Routes requests to channels
+
+```solidity
+contract VerificationRouter {
+    GenesisChannelRegistry public registry;
+    IVerifier public verifier;
     
-    let channel = &mut ctx.accounts.channel;
-    channel.channel_id = channel_id;
-    channel.owner = ctx.accounts.nft_holder.key();
-    channel.tier = tier;
-    channel.capacity_weight = match tier {
-        1 => 1,   // Platinum
-        2 => 15,  // Titanium (1.5x represented as 15/10)
-        3 => 2,   // Obsidian
-        _ => 1,
-    };
-    channel.total_verifications = 0;
-    channel.total_earned = 0;
-    channel.active = true;
-    channel.bump = *ctx.bumps.get("channel").unwrap();
-    
-    let state = &mut ctx.accounts.state;
-    state.total_channels += 1;
-    
-    emit!(ChannelRegistered {
-        channel_id,
-        owner: channel.owner,
-        tier,
-    });
-    
-    Ok(())
+    function processVerification(
+        uint256[8] calldata proof,
+        uint256 actionId,
+        uint256 identityCommitment,
+        uint256 actionNullifier
+    ) external payable returns (uint16) {
+        require(msg.value >= 0.001 ether, "Insufficient fee");
+        
+        // Verify ZK proof
+        bool isValid = verifyProof(proof, actionId, identityCommitment, actionNullifier);
+        require(isValid, "Invalid proof");
+        
+        // Select Genesis Channel
+        uint16 channelId = registry.selectNextChannel();
+        
+        // Distribute fees
+        distributeFees(channelId, msg.value);
+        
+        // Update channel stats
+        registry.incrementVerificationCount(channelId);
+        
+        return channelId;
+    }
 }
 ```
 
-**3. Verify Proof (Main Function)**
-```rust
-pub fn verify_proof(
-    ctx: Context<VerifyProof>,
-    proof: [u8; 256],          // ZK proof data
-    public_inputs: [u8; 32],   // Public signals
-    action_id: u64,
-) -> Result<()> {
-    // 1. Select Genesis Channel
-    let routing_state = &mut ctx.accounts.routing_state;
-    let channel_id = routing_state.select_next_channel(
-        &ctx.accounts.channels
-    )?;
+**3. GenesisNFT.sol** - ERC-721 badge contract
+
+```solidity
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+
+contract GenesisNFT is ERC721 {
+    GenesisChannelRegistry public registry;
+    uint16 public nextTokenId = 1;
     
-    // 2. Get selected channel
-    let channel = ctx.accounts.channels.iter()
-        .find(|c| c.channel_id == channel_id)
-        .ok_or(ErrorCode::ChannelNotFound)?;
+    constructor() ERC721("0L1 Genesis Channel", "0L1GEN") {}
     
-    // 3. Verify ZK proof
-    let is_valid = verify_groth16_proof(
-        &proof,
-        &public_inputs,
-        &ctx.accounts.verifying_key.data,
-    )?;
+    function mint(address to, uint8 tier) external onlyOwner {
+        require(nextTokenId <= 1000, "All minted");
+        
+        uint16 tokenId = nextTokenId++;
+        _mint(to, tokenId);
+        
+        // Register channel in registry
+        registry.registerChannel(tokenId, to, tier);
+    }
     
-    require!(is_valid, ErrorCode::InvalidProof);
-    
-    // 4. Check nullifier hasn't been used
-    require!(
-        !ctx.accounts.nullifier_registry.contains(&public_inputs),
-        ErrorCode::NullifierAlreadyUsed
-    );
-    
-    // 5. Add nullifier to registry
-    ctx.accounts.nullifier_registry.insert(public_inputs);
-    
-    // 6. Distribute fees
-    distribute_fees(
-        ctx.accounts.into_distribute_fees_context(),
-        ctx.accounts.fee_amount,
-    )?;
-    
-    // 7. Update global state
-    let state = &mut ctx.accounts.state;
-    state.total_verifications += 1;
-    
-    emit!(ProofVerified {
-        channel_id,
-        action_id,
-        timestamp: Clock::get()?.unix_timestamp,
-    });
-    
-    Ok(())
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 tokenId
+    ) internal override {
+        super._beforeTokenTransfer(from, to, tokenId);
+        
+        // Update channel ownership on transfer
+        if (from != address(0) && to != address(0)) {
+            registry.transferChannel(uint16(tokenId), to);
+        }
+    }
 }
 ```
 
-### Security Features
+### Gas Optimization
 
-**Access Controls:**
-- Multi-sig authority (3-of-5 threshold)
-- Time-locked upgrades (48-hour delay)
-- Emergency pause functionality
-- Role-based permissions
-
-**Financial Security:**
-- Overflow/underflow checks on all math
-- Reentrancy guards
-- Fee calculation verification
-- Slippage protection
-
-**Data Integrity:**
-- Nullifier registry prevents double-use
-- Timestamp validation prevents replays
-- Channel state consistency checks
-- Proof validity verification
+**Target Gas Costs (Base L2):**
+| Operation | Gas | Cost @ 0.5 Gwei |
+|-----------|-----|-----------------|
+| Mint Genesis NFT | ~150K | $0.30 |
+| Verify proof + route | ~300K | $0.60 |
+| Withdraw earnings | ~50K | $0.10 |
+| Transfer NFT | ~100K | $0.20 |
 
 ---
 
 ## API Infrastructure
 
-### API Gateway
+### REST API Endpoints
 
-**Tech Stack:**
-- **Framework:** Rust with Axum web framework
-- **Database:** PostgreSQL (customer data, analytics)
-- **Cache:** Redis (hot data, rate limiting)
-- **Monitoring:** Prometheus + Grafana
+**Base URL:** `https://api.0l1labs.com/v1`
 
-**Endpoints:**
+**1. Submit Verification**
+```http
+POST /verify
+Content-Type: application/json
+Authorization: Bearer {API_KEY}
 
-```rust
-// POST /v1/verify
-pub async fn verify_proof(
-    State(app_state): State<AppState>,
-    Json(payload): Json<VerifyRequest>,
-) -> Result<Json<VerifyResponse>, ApiError> {
-    // 1. Authenticate API key
-    let customer = authenticate_api_key(&payload.api_key).await?;
-    
-    // 2. Validate request
-    validate_proof_format(&payload.proof)?;
-    
-    // 3. Check rate limits
-    check_rate_limit(&customer.id).await?;
-    
-    // 4. Submit to Solana
-    let tx_signature = submit_verification_tx(
-        &app_state.solana_client,
-        &payload.proof,
-        &payload.public_inputs,
-    ).await?;
-    
-    // 5. Wait for confirmation
-    let result = wait_for_confirmation(
-        &app_state.solana_client,
-        &tx_signature,
-    ).await?;
-    
-    // 6. Log analytics
-    log_verification(
-        &customer.id,
-        &result,
-        &payload.action_type,
-    ).await?;
-    
-    // 7. Return response
-    Ok(Json(VerifyResponse {
-        valid: result.is_valid,
-        verification_id: result.id,
-        channel_id: result.channel_id,
-        timestamp: result.timestamp,
-    }))
+{
+  "proof": [...],
+  "actionId": "0x...",
+  "identityCommitment": "0x...",
+  "actionNullifier": "0x..."
 }
 
-// GET /v1/channel/{id}
-pub async fn get_channel_stats(
-    State(app_state): State<AppState>,
-    Path(channel_id): Path<u16>,
-) -> Result<Json<ChannelStats>, ApiError> {
-    let channel = fetch_channel_from_chain(
-        &app_state.solana_client,
-        channel_id,
-    ).await?;
-    
-    Ok(Json(ChannelStats {
-        channel_id: channel.channel_id,
-        owner: channel.owner.to_string(),
-        tier: channel.tier,
-        total_verifications: channel.total_verifications,
-        total_earned: channel.total_earned,
-        last_verification: channel.last_verification_timestamp,
-    }))
+Response:
+{
+  "success": true,
+  "channelId": 42,
+  "transactionHash": "0x...",
+  "verificationTime": 347
 }
 ```
 
+**2. Get Channel Stats**
+```http
+GET /channel/{channelId}/stats
+
+Response:
+{
+  "channelId": 42,
+  "owner": "0x...",
+  "tier": "Platinum",
+  "totalVerifications": 1247,
+  "totalEarned": "1.234 ETH",
+  "last24h": {
+    "verifications": 42,
+    "earned": "0.042 ETH"
+  }
+}
+```
+
+**3. Get Channel Earnings**
+```http
+GET /channel/{channelId}/earnings
+
+Response:
+{
+  "channelId": 42,
+  "availableToWithdraw": "0.543 ETH",
+  "totalEarned": "1.234 ETH",
+  "totalWithdrawn": "0.691 ETH"
+}
+```
+
+### WebSocket Real-Time Updates
+
+```javascript
+const ws = new WebSocket('wss://api.0l1labs.com/v1/channel/42/live');
+
+ws.onmessage = (event) => {
+  const update = JSON.parse(event.data);
+  
+  if (update.type === 'verification_processed') {
+    console.log(`Earned ${update.amount} ETH`);
+    console.log(`Total verifications: ${update.totalCount}`);
+  }
+};
+```
+
+**Event Types:**
+- `verification_processed` - New verification through your channel
+- `earnings_update` - Earnings balance changed
+- `channel_status_change` - Active status updated
+
 **Rate Limiting:**
-- Free tier: 100 requests/hour
-- Basic tier: 1,000 requests/hour
-- Pro tier: 10,000 requests/hour
-- Enterprise: Custom limits
+- 100 requests/minute per API key
+- 1000 requests/hour per API key
+- WebSocket: 1 connection per channel
 
 **SLA Targets:**
 - Uptime: 99.9%
@@ -718,7 +626,7 @@ pub async fn get_channel_stats(
 **Tech Stack:**
 - **Framework:** Next.js 14 (React)
 - **Styling:** Tailwind CSS
-- **Wallet:** Solana Wallet Adapter
+- **Wallet:** wagmi + RainbowKit (Ethereum wallet connection)
 - **Charts:** Recharts
 - **API:** REST + WebSocket (real-time updates)
 
@@ -732,7 +640,7 @@ interface ChannelOverview {
   owner: string;
   active: boolean;
   totalVerifications: number;
-  totalEarned: number;  // in SOL
+  totalEarned: string;  // in ETH
   lastVerification: Date;
 }
 ```
@@ -746,7 +654,7 @@ ws.onmessage = (event) => {
   const update = JSON.parse(event.data);
   if (update.type === 'verification_processed') {
     updateEarnings(update.amount);
-    showNotification(`Earned ${update.amount} SOL`);
+    showNotification(`Earned ${update.amount} ETH`);
   }
 };
 ```
@@ -811,7 +719,7 @@ async function submitProof(proof: ProofData) {
 | Component | Auditor | Timeline | Budget |
 |---|---|---|---|
 | **ZK Circuits** | Trail of Bits or Veridise | Q1 2026 (Week 11) | $50K-$75K |
-| **Smart Contracts** | Neodyme or OtterSec | Q1 2026 (Week 12) | $40K-$60K |
+| **Smart Contracts** | OpenZeppelin or Consensys Diligence | Q1 2026 (Week 12) | $40K-$60K |
 | **API Security** | Internal + Penetration Test | Q2 2026 | $20K |
 
 ### Security Measures
@@ -825,7 +733,7 @@ async function submitProof(proof: ProofData) {
 **Smart Contract Security:**
 - Formal verification (critical functions)
 - Fuzz testing (100K+ iterations)
-- Static analysis (Rust Clippy, audit tools)
+- Static analysis (Slither, Mythril)
 - Test coverage >95%
 
 **Operational Security:**
@@ -865,7 +773,7 @@ async function submitProof(proof: ProofData) {
 - [ ] Generate proving and verifying keys
 
 **Weeks 5-6: Smart Contract Development**
-- [ ] Initialize Anchor project
+- [ ] Initialize Hardhat/Foundry project
 - [ ] Implement Genesis Channel registry
 - [ ] Build routing algorithm
 - [ ] Create fee distribution logic
@@ -875,7 +783,7 @@ async function submitProof(proof: ProofData) {
 - [ ] Set up Next.js project
 - [ ] Build proof generation interface
 - [ ] Create badge holder dashboard
-- [ ] Implement wallet integration
+- [ ] Implement wallet integration (wagmi + RainbowKit)
 - [ ] Design real-time updates (WebSocket)
 
 **Weeks 9-10: Integration & Testing**
@@ -891,7 +799,7 @@ async function submitProof(proof: ProofData) {
 - [ ] Prepare for launch
 
 **Week 13: Genesis Deployment**
-- [ ] Deploy to Solana mainnet
+- [ ] Deploy to Base mainnet
 - [ ] Launch badge holder dashboard
 - [ ] Process first live verifications
 - [ ] Monitor and support
@@ -899,7 +807,7 @@ async function submitProof(proof: ProofData) {
 ### Q2 2026: API Launch
 
 - [ ] Public API release
-- [ ] SDK libraries (JS, Python, Rust)
+- [ ] SDK libraries (JS, Python, TypeScript)
 - [ ] Developer documentation
 - [ ] Integration examples
 - [ ] Customer onboarding
@@ -919,9 +827,9 @@ async function submitProof(proof: ProofData) {
 ### Core Technologies
 
 **Blockchain:**
-- Solana (mainnet)
-- Anchor Framework v0.29+
-- Rust 1.70+
+- Base (Ethereum L2)
+- Hardhat/Foundry for development
+- Solidity 0.8.20+
 
 **Zero-Knowledge:**
 - Circom 2.1+
@@ -930,7 +838,7 @@ async function submitProof(proof: ProofData) {
 - Powers of Tau trusted setup
 
 **Backend:**
-- Rust with Axum
+- TypeScript with Express/Fastify
 - PostgreSQL 15+
 - Redis 7+
 - Docker + Kubernetes
@@ -939,7 +847,7 @@ async function submitProof(proof: ProofData) {
 - Next.js 14+
 - TypeScript 5+
 - Tailwind CSS
-- Solana Wallet Adapter
+- wagmi + RainbowKit (wallet connection)
 
 **Infrastructure:**
 - AWS or GCP
@@ -949,8 +857,8 @@ async function submitProof(proof: ProofData) {
 
 ### Development Tools
 
-- **IDE:** VSCode with Rust Analyzer
-- **Testing:** Anchor test framework, Jest
+- **IDE:** VSCode with Solidity extension
+- **Testing:** Hardhat test framework, Jest
 - **CI/CD:** GitHub Actions
 - **Version Control:** Git + GitHub
 - **Documentation:** Docusaurus
@@ -974,8 +882,8 @@ async function submitProof(proof: ProofData) {
 | Operation | Cost | Notes |
 |---|---|---|
 | Proof generation | Free | Client-side |
-| Verification (Solana) | ~$0.0001 | Gas fees |
-| Fee distribution | ~$0.0001 | Gas fees |
+| Verification (Base) | ~$0.01-$0.50 | Gas fees (L2) |
+| Fee distribution | ~$0.01-$0.10 | Gas fees (L2) |
 | API call | Free-$0.50 | Customer pricing |
 
 ---
