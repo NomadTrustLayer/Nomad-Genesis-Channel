@@ -1,207 +1,185 @@
-# Contributing to 0L1 Labs
+# Contributing to Nomad Trust Layer
 
-Thank you for your interest in contributing to 0L1 Labs! We're building the digital trust infrastructure for the agentic era, and we welcome contributions from the community.
+Thank you for your interest in contributing to Nomad Trust Layer! This document provides guidelines for contributing to our zero-knowledge proof verification infrastructure.
 
-## 🎯 Ways to Contribute
+## Code of Conduct
 
-### 1. Code Contributions
-- **Circuit Development:** Improvements to our ZK circuits (Circom)
-- **Smart Contracts:** Enhancements to Base verifier contracts (Solidity)
-- **Frontend:** UI/UX improvements to proof generation interface
-- **Documentation:** Technical docs, tutorials, examples
+This project adheres to a Code of Conduct that all contributors are expected to follow. Please read [Code_Of_Conduct.md](Code_Of_Conduct.md) before contributing.
 
-### 2. Bug Reports
-- Found a bug? Open an issue with detailed reproduction steps
-- Include: OS, browser, error messages, screenshots if applicable
+## How to Contribute
 
-### 3. Feature Requests
-- Have an idea? Open an issue tagged `enhancement`
-- Describe the use case and expected behavior
+### Reporting Bugs
 
-### 4. Documentation
-- Fix typos, improve clarity, add examples
-- Write tutorials or integration guides
+If you find a bug, please create an issue with:
 
----
+* **Clear title** - Describe the problem concisely
+* **Steps to reproduce** - Detailed steps to trigger the bug
+* **Expected behavior** - What should happen
+* **Actual behavior** - What actually happens
+* **Environment** - OS, browser, versions, etc.
+* **Screenshots** - If applicable
 
-## 🚀 Getting Started
+### Suggesting Enhancements
 
-### Development Setup (Coming Q1 2026)
+We welcome feature suggestions! Please create an issue with:
+
+* **Use case** - Why is this needed?
+* **Proposed solution** - How should it work?
+* **Alternatives** - Other approaches considered?
+* **Additional context** - Screenshots, mockups, examples
+
+### Pull Requests
+
+1. **Fork the repository**
+2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
+3. **Make your changes**
+4. **Test thoroughly**
+5. **Commit with clear messages**: `git commit -m 'Add amazing feature'`
+6. **Push to your fork**: `git push origin feature/amazing-feature`
+7. **Open a Pull Request**
+
+#### PR Guidelines
+
+* **Description** - Explain what and why
+* **Testing** - Describe how you tested
+* **Screenshots** - If UI changes
+* **Breaking changes** - Call out any breaking changes
+* **Link issues** - Reference related issues
+
+### Development Setup
 
 ```bash
-# Clone the repository
-git clone https://github.com/0L1-Labs/0L1-Labs.git
-cd 0L1-Labs
+# Clone your fork
+git clone https://github.com/YOUR-USERNAME/Genesis-Channels
+cd Genesis-Channels
 
-# Install dependencies (instructions coming soon)
-# npm install (for frontend)
-# npm install (for Rust contracts)
-```
+# Add upstream remote
+git remote add upstream https://github.com/nomadtrustlayer/Genesis-Channels
 
----
+# Install dependencies (if applicable)
+npm install  # or pip install -r requirements.txt
 
-## 📋 Contribution Guidelines
-
-### Before You Start
-
-1. **Check existing issues** - Someone might already be working on it
-2. **Open an issue first** - Discuss major changes before implementing
-3. **Read the docs** - Familiarize yourself with the architecture
-
-### Code Standards
-
-**Circuit Code (Circom):**
-- Follow Semaphore Protocol conventions
-- Add comprehensive comments
-- Include test cases
-
-**Smart Contracts (Solidity):**
-- Follow Anchor framework best practices
-- Write unit tests for all functions
-- Document security considerations
-
-**Frontend (JavaScript/React):**
-- Use modern ES6+ syntax
-- Follow existing code style
-- Ensure mobile responsiveness
-
-**Documentation:**
-- Use clear, concise language
-- Include code examples
-- Add links to relevant resources
-
----
-
-## 🔄 Pull Request Process
-
-### 1. Fork & Branch
-```bash
-# Fork the repo on GitHub, then:
-git clone https://github.com/YOUR_USERNAME/0L1-Labs.git
-cd 0L1-Labs
+# Create feature branch
 git checkout -b feature/your-feature-name
 ```
 
-### 2. Make Changes
-- Write clean, documented code
-- Add tests for new functionality
-- Update documentation as needed
+### Coding Standards
 
-### 3. Test
+**General:**
+* Write clear, self-documenting code
+* Add comments for complex logic
+* Follow existing code style
+* Keep functions small and focused
+
+**Python:**
+* Follow PEP 8 style guide
+* Use type hints where applicable
+* Write docstrings for functions/classes
+
+**Circom (ZK Circuits):**
+* Comment circuit logic thoroughly
+* Explain constraints clearly
+* Document signal purposes
+
+**Solidity (Smart Contracts):**
+* Follow Solidity style guide
+* Use NatSpec documentation
+* Write comprehensive tests
+* Gas optimization is important
+
+### Testing
+
+**All contributions should include tests:**
+
+* **Unit tests** - Test individual functions
+* **Integration tests** - Test component interactions
+* **Circuit tests** - Verify ZK circuit correctness
+* **Contract tests** - Verify smart contract behavior
+
 ```bash
-# Run tests (commands coming Q1 2026)
-# npm test (frontend)
-# cargo test (contracts)
+# Run tests (example commands)
+npm test
+pytest
 ```
 
-### 4. Commit
-```bash
-# Use clear, descriptive commit messages
-git commit -m "feat: add nullifier verification optimization"
-```
+### Documentation
 
-**Commit Message Format:**
-- `feat:` New feature
-- `fix:` Bug fix
-- `docs:` Documentation changes
-- `test:` Adding or updating tests
-- `refactor:` Code refactoring
-- `style:` Formatting changes
-- `chore:` Maintenance tasks
+**Update documentation when:**
+* Adding new features
+* Changing existing behavior
+* Fixing bugs that affect usage
+* Improving explanations
 
-### 5. Push & Create PR
-```bash
-git push origin feature/your-feature-name
-```
+**Documentation includes:**
+* README.md updates
+* Code comments
+* API documentation
+* Technical specifications
 
-Then create a Pull Request on GitHub with:
-- **Clear title** describing the change
-- **Description** of what and why
-- **Screenshots** if UI changes
-- **Issue reference** if applicable (e.g., "Fixes #123")
+## Open Source Scope
 
-### 6. Review Process
-- Maintainers will review your PR
-- Address any requested changes
-- Once approved, your PR will be merged!
+### What's Open Source
 
----
+**These components are open source (MIT License):**
 
-## 🔐 Security
+* ✅ ZK circuit code (Circom)
+* ✅ Smart contract code (Solidity)
+* ✅ Frontend proof generation libraries
+* ✅ Nomad Channel routing logic
+* ✅ Documentation and examples
+
+### What's Proprietary
+
+**These remain proprietary:**
+
+* ❌ API backend services
+* ❌ Enterprise integration code
+* ❌ Customer data and analytics
+* ❌ Internal operational tools
+
+## Security Contributions
 
 **Found a security vulnerability?**
 
-**DO NOT** open a public issue. Instead:
-1. Email: security@0l1labs.com
-2. Include detailed description
-3. We'll respond within 48 hours
-4. Coordinated disclosure after fix
+* **DO NOT** create a public issue
+* **Email:** security@nomadtrust.com
+* See [Security.md](Security.md) for full policy
 
-See [SECURITY.md](./SECURITY.md) for our full security policy.
+We take security seriously and will respond promptly to responsible disclosures.
 
----
+## Communication Channels
 
-## 💬 Communication
+* **GitHub Issues** - Bug reports, feature requests
+* **GitHub Discussions** - General questions, ideas
+* **Discord** - Community chat (coming soon)
+* **Twitter** - [@nomadtrustlayer](https://twitter.com/nomadtrustlayer)
 
-### Where to Ask Questions
+## Recognition
 
-- **GitHub Discussions:** General questions, ideas, showcases
-- **GitHub Issues:** Bug reports, feature requests
-- **Discord:** Real-time chat, community support (link coming soon)
-- **Twitter:** [@0L1Labs](https://twitter.com/0L1Labs)
+Contributors will be:
 
-### Communication Guidelines
+* Listed in [Contributors.md](Contributors.md)
+* Mentioned in release notes (for significant contributions)
+* Invited to community events
+* Considered for future opportunities
 
-- **Be respectful** - We're all here to learn and build
-- **Be constructive** - Focus on solutions, not problems
-- **Be patient** - Maintainers are volunteers or busy building
-- **Be helpful** - Help others when you can
+## Questions?
 
----
+Not sure where to start? Have questions about contributing?
 
-## 📜 Code of Conduct
+* Check existing issues for "good first issue" label
+* Ask in GitHub Discussions
+* Reach out on Discord
+* Email: team@nomadtrust.com
 
-We are committed to providing a welcoming and inclusive environment for everyone. By participating in this project, you agree to abide by our [Code of Conduct](./CODE_OF_CONDUCT.md).
+## License
 
-### Our Pledge
+By contributing to Nomad Trust Layer, you agree that your contributions will be licensed under the MIT License (for code) and CC BY-SA 4.0 (for documentation).
 
-- **Respectful:** Treat everyone with respect and kindness
-- **Inclusive:** Welcome contributors from all backgrounds
-- **Constructive:** Focus on building, not tearing down
-- **Professional:** Maintain professional communication
-
-### Unacceptable Behavior
-
-- Harassment, discrimination, or offensive comments
-- Personal attacks or trolling
-- Publishing private information
-- Spam or off-topic discussions
-
-Violations may result in temporary or permanent ban from the project.
+See [LICENSE.md](LICENSE.md) for details.
 
 ---
 
-## 🎁 Recognition
+**Thank you for contributing to the trust layer for borderless verification!** 🚀
 
-All contributors will be:
-- Listed in our [CONTRIBUTORS.md](./CONTRIBUTORS.md) file
-- Mentioned in release notes for significant contributions
-- Eligible for future rewards/grants as the project grows
-
----
-
-## 📝 License
-
-By contributing to 0L1 Labs, you agree that your contributions will be licensed under the [MIT License](./LICENSE).
-
----
-
-## 🙏 Thank You
-
-Every contribution, no matter how small, helps make 0L1 Labs better. Thank you for being part of building the future of digital trust infrastructure!
-
-**Questions?** Reach out to: info@0l1labs.com
-
----
-
-**Last Updated:** December 2025
+*Built by [0L1 Labs](https://0l1labs.com)*
