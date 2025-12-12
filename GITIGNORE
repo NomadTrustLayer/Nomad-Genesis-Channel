@@ -1,10 +1,8 @@
-# 0L1 Labs .gitignore
+# Nomad Trust Layer .gitignore
 
-# ==========================================
-# Node.js / JavaScript / Frontend
-# ==========================================
-
-# Dependencies
+# ============================================
+# Node.js / JavaScript
+# ============================================
 node_modules/
 npm-debug.log*
 yarn-debug.log*
@@ -12,102 +10,22 @@ yarn-error.log*
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
+.pnpm-debug.log*
+.npm
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
 
-# Production builds
-/build
-/dist
-/.next
-/out
-
-# Environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Testing
-/coverage
-/.nyc_output
-*.lcov
-
-# Cache
-.cache
-.parcel-cache
-.eslintcache
-
-# Misc
-.DS_Store
-*.swp
-*.swo
-*~
-.vscode/
-.idea/
-
-# ==========================================
-# Solidity / Hardhat / Foundry
-# ==========================================
-
-# Hardhat
-cache/
-artifacts/
-typechain/
-typechain-types/
-
-# Foundry
-out/
-cache_forge/
-broadcast/
-
-# Solidity coverage
-coverage/
-coverage.json
-
-# Compilation artifacts
-*.abi
-*.bin
-
-# Deployment artifacts
-deployments/*/solcInputs
-
-# ==========================================
-# Zero-Knowledge Circuits (Circom)
-# ==========================================
-
-# Circom build artifacts
-*.r1cs
-*.wasm
-*.sym
-*.zkey
-*.vkey
-circuit.json
-verification_key.json
-witness.wtns
-proof.json
-public.json
-
-# Compiled circuits
-build/
-circuits/build/
-circuits/out/
-
-# Powers of Tau files (large ceremony files)
-pot*.ptau
-powersOfTau*.ptau
-
-# ==========================================
-# Python (if used for tooling)
-# ==========================================
-
-# Byte-compiled / optimized
+# ============================================
+# Python (ZK Circuit Tooling)
+# ============================================
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-env/
-venv/
-ENV/
 build/
 develop-eggs/
 dist/
@@ -120,75 +38,162 @@ parts/
 sdist/
 var/
 wheels/
-pip-wheel-metadata/
 *.egg-info/
 .installed.cfg
 *.egg
+pip-log.txt
+pip-delete-this-directory.txt
+.venv/
+venv/
+ENV/
+env/
+.python-version
 
-# ==========================================
-# Documentation
-# ==========================================
+# ============================================
+# Solidity / Hardhat / Foundry
+# ============================================
+artifacts/
+cache/
+cache_hardhat/
+.hardhat/
+.hardhat-zksolc/
+typechain/
+typechain-types/
+deployments/local/
+deployments/localhost/
+coverage/
+coverage.json
+.coverage
+.coverage.*
+*.lcov
+gasReporterOutput.json
 
-# Auto-generated docs
-docs/_build/
-docs/.doctrees/
-site/
+# Foundry
+out/
+forge-cache/
+broadcast/
 
-# ==========================================
-# IDE / Editor
-# ==========================================
+# Smart contract deployment artifacts (KEEP MAINNET)
+# But ignore local/testnet
+deployments/hardhat/
+deployments/localhost/
+deployments/ganache/
 
-# VSCode
-.vscode/*
-!.vscode/settings.json.example
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
+# ============================================
+# ZK Circuit Files
+# ============================================
+# Keep source circuits, ignore compiled artifacts
+*.r1cs
+*.sym
+*.wasm
+circuit_js/
+circuit_cpp/
+circuit_final.zkey
+verification_key.json
+proof.json
+public.json
+witness.wtns
 
-# JetBrains
+# Trusted setup files (often large, download separately)
+powersOfTau*.ptau
+
+# Generated proofs and witnesses (don't commit)
+proofs/
+witnesses/
+
+# ============================================
+# Environment Variables & Secrets
+# ============================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+*.key
+*.pem
+*.p12
+private-keys.json
+secrets.json
+mnemonic.txt
+
+# Wallet files
+keystore/
+wallet.json
+*.keystore
+
+# ============================================
+# Build Artifacts
+# ============================================
+dist/
+build/
+.next/
+.nuxt/
+.cache/
+.parcel-cache/
+.vercel/
+
+# ============================================
+# Testing
+# ============================================
+coverage/
+*.coverage
+.nyc_output/
+test-results/
+playwright-report/
+test-report/
+
+# ============================================
+# IDEs and Editors
+# ============================================
+# VS Code
+.vscode/
+.vscode-test/
+*.code-workspace
+
+# JetBrains IDEs
 .idea/
 *.iml
 *.iws
 *.ipr
-out/
+.idea_modules/
 
 # Sublime Text
 *.sublime-project
 *.sublime-workspace
 
 # Vim
-[._]*.s[a-v][a-z]
-[._]*.sw[a-p]
-[._]s[a-rt-v][a-z]
-[._]ss[a-gi-z]
-[._]sw[a-p]
+*.swp
+*.swo
+*~
+.vim/
 
 # Emacs
 *~
 \#*\#
-/.emacs.desktop
-/.emacs.desktop.lock
-*.elc
-auto-save-list
-tramp
 .\#*
 
-# ==========================================
-# OS
-# ==========================================
-
+# ============================================
+# OS Files
+# ============================================
 # macOS
 .DS_Store
 .AppleDouble
 .LSOverride
-Icon
 ._*
+.DocumentRevisions-V100
+.fseventsd
 .Spotlight-V100
+.TemporaryItems
 .Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
 
 # Windows
 Thumbs.db
+Thumbs.db:encryptable
 ehthumbs.db
+ehthumbs_vista.db
 Desktop.ini
 $RECYCLE.BIN/
 
@@ -196,131 +201,106 @@ $RECYCLE.BIN/
 .directory
 .Trash-*
 
-# ==========================================
-# Secrets & Keys
-# ==========================================
-
-# Private keys (NEVER commit these!)
-*.pem
-*.key
-*.p12
-*.pfx
-*.cer
-*.crt
-id_rsa*
-id_dsa*
-id_ecdsa*
-id_ed25519*
-
-# Wallet files
-*.wallet
-*.json.key
-keypair.json
-
-# Environment secrets
-.env
-.env.local
-.env.*.local
-secrets.json
-config.secret.*
-
-# ==========================================
+# ============================================
 # Logs
-# ==========================================
-
+# ============================================
 logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
-.npm
-.eslintcache
+.pnpm-debug.log*
+error.log
+combined.log
 
-# ==========================================
-# Testing
-# ==========================================
-
-# Test results
-coverage/
-*.lcov
-.nyc_output/
-test-results/
-test-reports/
-
-# ==========================================
-# Database
-# ==========================================
-
-*.db
-*.sqlite
-*.sqlite3
-
-# ==========================================
+# ============================================
 # Temporary Files
-# ==========================================
-
+# ============================================
 tmp/
 temp/
 *.tmp
-*.bak
-*.backup
-*.old
+*.temp
+.temp/
+.tmp/
 
-# ==========================================
-# API & Backend (when added)
-# ==========================================
+# ============================================
+# Documentation Build
+# ============================================
+docs/.vuepress/dist/
+docs/.vuepress/.cache/
+docs/.vuepress/.temp/
+.docusaurus/
 
-# Environment
-.env
-.env.test
-.env.production
-
+# ============================================
 # Database
+# ============================================
 *.db
 *.sqlite
 *.sqlite3
+*.db-journal
 
-# Session storage
-sessions/
+# ============================================
+# NFT Metadata & Assets (Large Files)
+# ============================================
+# Keep source, but ignore generated/optimized versions
+# nft-metadata/generated/
+# images/optimized/
+# videos/compressed/
 
-# Uploads
-uploads/
-public/uploads/
-
-# ==========================================
-# Docker (if used)
-# ==========================================
-
-# Docker
-*.dockerignore
-docker-compose.override.yml
-
-# ==========================================
-# Analytics & Monitoring
-# ==========================================
-
-# Sentry
-.sentryclirc
-
-# ==========================================
-# Package Manager Locks (Optional)
-# ==========================================
-
-# Uncomment these if you want to commit lock files
+# ============================================
+# Dependencies & Lock Files (Optional)
+# ============================================
+# Uncomment if you want to commit lock files
 # package-lock.json
 # yarn.lock
 
-# ==========================================
-# Custom 0L1 Labs Specific
-# ==========================================
+# ============================================
+# CI/CD
+# ============================================
+.github/workflows/*.local.yml
 
-# Circuit test vectors
-test-vectors/
-# Large ceremony files
-ceremonies/
-# Generated proofs (testing)
-proofs/test_*
-# Local blockchain data
-.hardhat/
-.foundry/
+# ============================================
+# Analytics & Monitoring
+# ============================================
+.sentryclirc
+.datadog/
+
+# ============================================
+# Docker
+# ============================================
+docker-compose.override.yml
+.dockerignore
+
+# ============================================
+# Terraform / Infrastructure
+# ============================================
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+# ============================================
+# Custom Nomad Trust Layer Specific
+# ============================================
+# Add any project-specific files/folders here
+channel-earnings-reports/
+private-dashboard-data/
+node-holder-analytics/
+audit-reports/draft/
+
+# ============================================
+# Keep These Files (Important!)
+# ============================================
+# Do NOT ignore:
+# - README.md
+# - TECHNICAL_ROADMAP.md
+# - Contributing.md
+# - Security.md
+# - LICENSE.md
+# - package.json
+# - hardhat.config.js / foundry.toml
+# - Circuit source files (.circom)
+# - Smart contract source (.sol)
+# - Deployment addresses (mainnet/testnet)
+# - Documentation
