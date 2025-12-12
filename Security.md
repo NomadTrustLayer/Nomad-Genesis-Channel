@@ -2,268 +2,191 @@
 
 ## Reporting a Vulnerability
 
-At 0L1 Labs, we take security seriously. We appreciate the security research community's efforts in helping us maintain a secure platform.
+**Nomad Trust Layer takes security seriously.** We appreciate responsible disclosure of security vulnerabilities.
 
 ### How to Report
 
-If you believe you've found a security vulnerability in 0L1 Labs, please report it to us following these guidelines:
+**DO NOT create a public GitHub issue for security vulnerabilities.**
 
-**DO NOT** disclose the vulnerability publicly until we've had a chance to address it.
+Instead, please email: **security@nomadtrust.com**
 
-### Contact
+Include:
 
-**Email:** security@0l1labs.com
-
-**PGP Key:** [Coming soon - will be published here]
-
-**Expected Response Time:** Within 48 hours
-
-### What to Include
-
-Please provide as much information as possible to help us understand and resolve the issue:
-
-1. **Type of issue** (e.g., circuit vulnerability, smart contract exploit, frontend attack)
-2. **Full path** of source file(s) related to the issue
-3. **Location** of the affected source code (tag/branch/commit or direct URL)
-4. **Step-by-step instructions** to reproduce the issue
-5. **Proof-of-concept or exploit code** (if possible)
-6. **Impact** of the issue, including how an attacker might exploit it
-7. **Your contact information** for follow-up questions
+* **Description** - Clear explanation of the vulnerability
+* **Impact** - Potential consequences if exploited
+* **Steps to reproduce** - Detailed reproduction steps
+* **Affected components** - Which parts of the system are vulnerable
+* **Suggested fix** - If you have recommendations
+* **Your contact info** - For follow-up questions
 
 ### What to Expect
 
-1. **Acknowledgment:** We'll acknowledge receipt of your vulnerability report within 48 hours
-2. **Assessment:** We'll assess the vulnerability and determine its severity
-3. **Updates:** We'll keep you informed of our progress
-4. **Resolution:** We'll work on a fix and deploy it
-5. **Disclosure:** We'll coordinate public disclosure with you after the fix is deployed
+* **Acknowledgment** - Within 48 hours
+* **Initial assessment** - Within 5 business days
+* **Regular updates** - Throughout investigation
+* **Resolution timeline** - Depends on severity and complexity
+* **Credit** - Public recognition (if desired) after fix is deployed
 
----
+### Scope
 
-## Scope
+**In scope:**
 
-### In Scope
+* Zero-knowledge proof circuits (Circom)
+* Smart contracts (Solidity)
+* Nomad Channel routing logic
+* Fee distribution mechanisms
+* Frontend proof generation libraries
+* API endpoints (once public)
 
-The following components are in scope for vulnerability reporting:
+**Out of scope:**
 
-**Core Infrastructure:**
-- Zero-knowledge circuits (Circom code)
-- Base smart contracts (Solidity)
-- Frontend proof generation (JavaScript/React)
-- API endpoints (when launched Q2 2026)
+* Social engineering attacks
+* Physical security
+* Third-party dependencies (report to them directly)
+* Already-disclosed vulnerabilities
+* Denial of service attacks
 
-**Vulnerability Types:**
-- Circuit vulnerabilities (proof forgery, nullifier reuse, etc.)
-- Smart contract exploits (reentrancy, authorization bypass, etc.)
-- Cryptographic weaknesses
-- Authentication/authorization flaws
-- Input validation issues
-- Logic errors that could lead to security issues
+### Severity Levels
 
-### Out of Scope
+**Critical** - Immediate threat to user funds or privacy
+* Response: < 24 hours
+* Fix target: < 7 days
 
-The following are explicitly **OUT OF SCOPE**:
+**High** - Significant security impact
+* Response: < 48 hours  
+* Fix target: < 14 days
 
-- Social engineering attacks
-- Physical attacks on infrastructure
-- Denial of Service (DoS) attacks
-- Spam or rate limiting issues
-- Issues in third-party dependencies (report to them directly)
-- Issues requiring physical access to user devices
-- Browser-specific bugs (report to browser vendors)
-- Issues in test/development environments
-- Previously reported or known issues
+**Medium** - Moderate security impact
+* Response: < 5 days
+* Fix target: < 30 days
 
----
-
-## Bug Bounty Program
-
-### Current Status
-
-**Bug Bounty Program launches Q2 2026** with a **$50K-$100K reward pool**.
-
-### Reward Tiers (Q2 2026+)
-
-Rewards will be based on severity and impact:
-
-| Severity | Reward Range | Examples |
-|----------|--------------|----------|
-| **Critical** | $10,000 - $25,000 | Proof forgery, nullifier bypass, contract drain |
-| **High** | $5,000 - $10,000 | Authorization bypass, key extraction, fund theft |
-| **Medium** | $1,000 - $5,000 | Information disclosure, non-critical logic errors |
-| **Low** | $250 - $1,000 | Minor issues with limited impact |
-
-**Note:** Final reward amounts are at the discretion of 0L1 Labs and depend on:
-- Severity and impact of the vulnerability
-- Quality of the report
-- Ease of exploitation
-- Whether the issue was previously known
-
-### Eligibility
-
-To be eligible for a bounty:
-- ✅ Be the first to report the vulnerability
-- ✅ Follow responsible disclosure guidelines
-- ✅ Provide sufficient detail to reproduce
-- ✅ Not violate any laws or breach any agreements
-- ✅ Not exploit the vulnerability beyond proof-of-concept
-- ✅ Not publicly disclose before we've had a chance to fix
-
-**Ineligible:**
-- ❌ 0L1 Labs employees, contractors, or immediate family
-- ❌ Reports generated by automated tools without validation
-- ❌ Out of scope issues
-- ❌ Duplicate reports
-
----
-
-## Security Best Practices
-
-### For Users
-
-**Protecting Your Identity Secret:**
-- Generate identity secrets only on trusted devices
-- Never share your identity_secret with anyone
-- Back up your identity_secret securely (encrypted storage)
-- Clear browser storage when using public computers
-
-**Wallet Security:**
-- Use hardware wallets when possible
-- Verify all transaction details before signing
-- Keep wallet software updated
-- Be cautious of phishing attempts
-
-### For Developers
-
-**Building on 0L1 Labs:**
-- Always validate proofs on-chain before granting access
-- Never trust client-side proof validation alone
-- Implement rate limiting on proof submission endpoints
-- Monitor for abnormal proof submission patterns
-- Keep dependencies updated
-- Follow our integration security guidelines (coming Q2 2026)
-
----
-
-## Supported Versions
-
-### Current Support Status
-
-| Component | Version | Supported | Status |
-|-----------|---------|-----------|--------|
-| ZK Circuits | v1.0 | ✅ Yes | In Development (Q1 2026) |
-| Smart Contracts | v1.0 | ✅ Yes | In Development (Q1 2026) |
-| Frontend | v1.0 | ✅ Yes | In Development (Q1 2026) |
-| API | N/A | ⏳ Coming | Launch Q2 2026 |
-
-**Pre-Launch Status:** Currently in development. Security audits scheduled for Q1 2026.
-
----
+**Low** - Minor security impact
+* Response: < 7 days
+* Fix target: Next release cycle
 
 ## Security Measures
 
-### Development Security
+### Circuit Security
 
-**Circuit Security:**
-- Built on audited Semaphore Protocol
-- Simplification reduces attack surface
-- Comprehensive test coverage
-- Independent security audits (Q1 2026)
+* Built on audited **Semaphore Protocol**
+* Simplified circuit reduces attack surface
+* Independent security audits scheduled (Q1 2026)
+* Formal verification of critical constraints
+* Comprehensive test coverage
 
-**Smart Contract Security:**
-- Anchor framework (battle-tested)
-- Formal verification of critical functions
-- Multi-sig admin controls
-- Time-locked upgrades
-- External audits by leading firms (Q1 2026)
+### Smart Contract Security
 
-**Infrastructure Security:**
-- Regular dependency updates
-- Automated security scanning
-- Penetration testing
-- 24/7 monitoring (when live)
+* Solidity best practices
+* Multi-sig admin controls (3-of-5)
+* Time-locked upgrades (48-hour delay)
+* Emergency pause mechanism
+* Automated testing and continuous integration
+* Formal verification of critical functions
+* Professional security audits (Q1 2026)
 
-### Audit Timeline
+### Key Management
 
-| Audit Type | Vendor | Timeframe | Status |
-|------------|--------|-----------|--------|
-| Circuit Audit | Trail of Bits or equivalent | Q1 2026 | Scheduled |
-| Smart Contract Audit | Neodyme, OtterSec, or equivalent | Q1 2026 | Scheduled |
-| Frontend Security Review | TBD | Q1 2026 | Scheduled |
-| Bug Bounty Launch | Community | Q2 2026 | Planned |
+* Client-side key generation only
+* Keys never transmitted to servers
+* Encrypted browser storage
+* User-controlled backups
+* No custodial access
 
-All audit reports will be published after issues are resolved.
+### Infrastructure Security
 
----
+* DDoS protection
+* Rate limiting
+* Input validation and sanitization
+* Secure API authentication
+* Encrypted data transmission (TLS 1.3)
+* Regular security patches
 
-## Incident Response
+### Financial Security
 
-### In Case of Security Incident
+* Non-custodial architecture
+* Direct payments to node holder wallets
+* No ability to seize or redirect earnings
+* Transparent on-chain accounting
+* Immutable ownership records
 
-If a security vulnerability is actively being exploited:
+## Audit History
 
-1. **Report immediately** to security@0l1labs.com
-2. **Include "URGENT"** in subject line
-3. **We will respond within 1 hour** during business hours
-4. **Emergency contact:** [Will be provided to verified researchers]
+### Planned Audits (Q1 2026)
 
-### Our Response Process
+**Circuit Audit:**
+* Auditor: Trail of Bits, Veridise, or equivalent
+* Scope: Custom Semaphore circuits, constraint analysis
+* Timeline: Q1 2026
 
-1. **Triage:** Assess severity and impact
-2. **Containment:** Implement immediate mitigations
-3. **Investigation:** Determine root cause
-4. **Resolution:** Deploy fix to production
-5. **Post-Mortem:** Publish incident report
-6. **Compensation:** Reward responsible disclosure
+**Smart Contract Audit:**
+* Auditor: OpenZeppelin, Consensys Diligence, or equivalent
+* Scope: Nomad Channel contracts, fee distribution, routing logic
+* Timeline: Q1 2026
 
----
+**Penetration Testing:**
+* Scope: Full platform security assessment
+* Timeline: Q1 2026
+
+### Bug Bounty Program
+
+**Coming Q2 2026:**
+
+* $50,000-$100,000 total pool
+* Rewards based on severity
+* Public recognition for responsible researchers
+* Details to be announced
+
+## Security Best Practices
+
+### For Node Holders
+
+* **Secure your wallet** - Use hardware wallet for large holdings
+* **Backup your keys** - Store recovery phrases securely
+* **Verify contracts** - Always verify contract addresses before interacting
+* **Enable 2FA** - On all associated accounts (email, exchanges, etc.)
+* **Be wary of phishing** - We will never DM you asking for keys or credentials
+
+### For Developers
+
+* **Review code carefully** - Before submitting pull requests
+* **Test thoroughly** - Include security-focused test cases
+* **Follow standards** - Adhere to established security patterns
+* **Document security considerations** - Explain security-relevant design decisions
+* **Use secure dependencies** - Keep dependencies updated
+
+### For Users
+
+* **Verify authenticity** - Always access via official links
+* **Protect your identity_secret** - Never share with anyone
+* **Use secure devices** - Avoid public computers for sensitive operations
+* **Keep software updated** - Use latest browser and wallet versions
 
 ## Disclosure Policy
 
-### Coordinated Disclosure
+Once a vulnerability is fixed:
 
-We follow a **coordinated disclosure model**:
+* **Coordinated disclosure** - Public announcement after patch is deployed
+* **Security advisory** - Published on GitHub and website
+* **Credit to reporter** - Public recognition (if desired)
+* **Vulnerability details** - Shared transparently with community
 
-1. **Report received:** We acknowledge within 48 hours
-2. **Investigation:** We investigate and develop a fix (typically 30-90 days)
-3. **Fix deployed:** We deploy the fix to production
-4. **Public disclosure:** We publicly disclose after 90 days or when fix is live (whichever comes first)
-5. **Credit:** We give credit to researchers who request it
+## Security Updates
 
-### Researcher Credit
+Subscribe to security updates:
 
-If you'd like to be credited for your discovery:
-- We'll list you in our security acknowledgments
-- We'll mention you in release notes (if applicable)
-- We can provide a CVE if appropriate
-- Let us know your preferred name/handle/organization
-
----
+* **GitHub Security Advisories** - Watch this repository
+* **Email notifications** - security@nomadtrust.com (announce-only list coming soon)
+* **Twitter** - [@nomadtrustlayer](https://twitter.com/nomadtrustlayer)
+* **Discord** - #security-announcements channel (coming soon)
 
 ## Contact
 
-**Security Team:** security@0l1labs.com  
-**General Inquiries:** info@0l1labs.com  
-**Website:** https://0l1labs.com
+* **Security issues:** security@nomadtrust.com
+* **General inquiries:** team@nomadtrust.com
+* **Website:** [nomadtrust.com](https://nomadtrust.com)
 
 ---
 
-## Legal
+**Thank you for helping keep Nomad Trust Layer secure!**
 
-By reporting a vulnerability to 0L1 Labs, you agree to:
-- Follow responsible disclosure practices
-- Not exploit the vulnerability beyond proof-of-concept
-- Not violate any laws or agreements
-- Work with us in good faith to resolve the issue
-
-We commit to:
-- Respond to your report promptly
-- Keep you informed of our progress
-- Not pursue legal action against good-faith security research
-- Credit you for your discovery (if you wish)
-
----
-
-**Last Updated:** December 2025
-
-**Version:** 1.0
+*Built by [0L1 Labs](https://0l1labs.com)*
