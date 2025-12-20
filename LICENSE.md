@@ -1,6 +1,6 @@
 # MIT License
 
-Copyright (c) 2025 Nomad Trust Layer (0L1 Labs)
+Copyright (c) 2025 Nomad Trust Layer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -31,7 +31,7 @@ The following components of Nomad Trust Layer are released under the MIT License
 * **Zero-knowledge proof circuits** (Circom)
 * **Smart contract code** (Solidity)
 * **Frontend proof generation libraries** (JavaScript)
-* **Nomad Channel routing logic**
+* **Genesis Channel routing logic**
 * **Public API client libraries**
 * **Documentation and examples**
 
@@ -42,7 +42,7 @@ The following components remain proprietary and are NOT covered by this license:
 * API backend services and infrastructure
 * Enterprise integration code and custom implementations
 * Customer data, analytics, and business intelligence tools
-* Internal operational tools and dashboards (beyond public node holder dashboard)
+* Internal operational tools and dashboards (beyond public channel holder dashboard)
 
 ### Documentation License
 
@@ -74,10 +74,8 @@ Full CC BY-SA 4.0 license: https://creativecommons.org/licenses/by-sa/4.0/
 
 For licensing questions or commercial inquiries:
 
-* Email: team@nomadtrust.com
-* Website: nomadtrust.com
-* GitHub: github.com/nomadtrustlayer
+* Email: team@nomadtrust.io
+* Website: nomadtrust.io
+* GitHub: github.com/NomadTrustLayer
 
 ---
-
-*Built by [0L1 Labs](https://0l1labs.com)*
