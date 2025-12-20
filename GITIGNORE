@@ -286,7 +286,7 @@ docker-compose.override.yml
 # Add any project-specific files/folders here
 channel-earnings-reports/
 private-dashboard-data/
-node-holder-analytics/
+channel-holder-analytics/
 audit-reports/draft/
 
 # ============================================
@@ -295,9 +295,9 @@ audit-reports/draft/
 # Do NOT ignore:
 # - README.md
 # - TECHNICAL_ROADMAP.md
-# - Contributing.md
-# - Security.md
-# - LICENSE.md
+# - CONTRIBUTING.md
+# - SECURITY.md
+# - LICENSE
 # - package.json
 # - hardhat.config.js / foundry.toml
 # - Circuit source files (.circom)
