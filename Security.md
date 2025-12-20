@@ -8,7 +8,7 @@
 
 **DO NOT create a public GitHub issue for security vulnerabilities.**
 
-Instead, please email: **security@nomadtrust.com**
+Instead, please email: **security@nomadtrust.io**
 
 Include:
 
@@ -33,10 +33,11 @@ Include:
 
 * Zero-knowledge proof circuits (Circom)
 * Smart contracts (Solidity)
-* Nomad Channel routing logic
+* Genesis Channel routing logic
 * Fee distribution mechanisms
 * Frontend proof generation libraries
 * API endpoints (once public)
+* AI agent verification workflows
 
 **Out of scope:**
 
@@ -73,6 +74,7 @@ Include:
 * Independent security audits scheduled (Q1 2026)
 * Formal verification of critical constraints
 * Comprehensive test coverage
+* Optimized for AI agent verification
 
 ### Smart Contract Security
 
@@ -86,10 +88,10 @@ Include:
 
 ### Key Management
 
-* Client-side key generation only
+* Client-side key generation only (agent-side)
 * Keys never transmitted to servers
-* Encrypted browser storage
-* User-controlled backups
+* Encrypted storage
+* Agent-controlled backups
 * No custodial access
 
 ### Infrastructure Security
@@ -104,7 +106,7 @@ Include:
 ### Financial Security
 
 * Non-custodial architecture
-* Direct payments to node holder wallets
+* Direct payments to channel holder wallets
 * No ability to seize or redirect earnings
 * Transparent on-chain accounting
 * Immutable ownership records
@@ -114,13 +116,13 @@ Include:
 ### Planned Audits (Q1 2026)
 
 **Circuit Audit:**
-* Auditor: Trail of Bits, Veridise, or equivalent
-* Scope: Custom Semaphore circuits, constraint analysis
+* Auditor: Trail of Bits, Veridise, or PSE Security
+* Scope: Custom Semaphore circuits, AI agent verification constraints
 * Timeline: Q1 2026
 
 **Smart Contract Audit:**
 * Auditor: OpenZeppelin, Consensys Diligence, or equivalent
-* Scope: Nomad Channel contracts, fee distribution, routing logic
+* Scope: Genesis Channel contracts, fee distribution, routing logic
 * Timeline: Q1 2026
 
 **Penetration Testing:**
@@ -138,13 +140,14 @@ Include:
 
 ## Security Best Practices
 
-### For Node Holders
+### For Channel Holders
 
 * **Secure your wallet** - Use hardware wallet for large holdings
-* **Backup your keys** - Store recovery phrases securely
+* **Backup your keys** - Store recovery phrases securely offline
 * **Verify contracts** - Always verify contract addresses before interacting
 * **Enable 2FA** - On all associated accounts (email, exchanges, etc.)
 * **Be wary of phishing** - We will never DM you asking for keys or credentials
+* **Monitor your channel** - Check dashboard regularly for unusual activity
 
 ### For Developers
 
@@ -154,10 +157,18 @@ Include:
 * **Document security considerations** - Explain security-relevant design decisions
 * **Use secure dependencies** - Keep dependencies updated
 
+### For AI Platform Integrators
+
+* **Protect API keys** - Never expose keys in client-side code
+* **Validate proofs** - Always verify proof validity before granting access
+* **Rate limit requests** - Implement appropriate rate limiting
+* **Monitor usage** - Track verification patterns for anomalies
+* **Use secure connections** - Always use HTTPS/TLS for API calls
+
 ### For Users
 
 * **Verify authenticity** - Always access via official links
-* **Protect your identity_secret** - Never share with anyone
+* **Protect your agent_secret** - Never share with anyone
 * **Use secure devices** - Avoid public computers for sensitive operations
 * **Keep software updated** - Use latest browser and wallet versions
 
@@ -175,18 +186,16 @@ Once a vulnerability is fixed:
 Subscribe to security updates:
 
 * **GitHub Security Advisories** - Watch this repository
-* **Email notifications** - security@nomadtrust.com (announce-only list coming soon)
+* **Email notifications** - security@nomadtrust.io (announce-only list coming soon)
 * **Twitter** - [@nomadtrustlayer](https://twitter.com/nomadtrustlayer)
-* **Discord** - #security-announcements channel (coming soon)
+* **Discord** - #security-announcements channel
 
 ## Contact
 
-* **Security issues:** security@nomadtrust.com
-* **General inquiries:** team@nomadtrust.com
-* **Website:** [nomadtrust.com](https://nomadtrust.com)
+* **Security issues:** security@nomadtrust.io
+* **General inquiries:** team@nomadtrust.io
+* **Website:** [nomadtrust.io](https://nomadtrust.io)
 
 ---
 
 **Thank you for helping keep Nomad Trust Layer secure!**
-
-*Built by [0L1 Labs](https://0l1labs.com)*
