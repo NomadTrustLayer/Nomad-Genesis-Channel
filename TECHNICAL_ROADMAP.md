@@ -1,18 +1,101 @@
 # Technical Roadmap
 
-**Nomad Trust Layer: Zero-Knowledge Proof Verification Infrastructure**
+**Nomad Trust Layer: AI Agent Verification Infrastructure**
 
 *Last Updated: December 2025*
 
 ---
 
+## Table of Contents
+
+1. [Executive Summary](#executive-summary)
+2. [Architecture Overview](#architecture-overview)
+3. [Genesis Channel System](#genesis-channel-system)
+4. [ZK Circuit Specifications](#zk-circuit-specifications)
+5. [Smart Contract Architecture](#smart-contract-architecture)
+6. [API Infrastructure](#api-infrastructure)
+7. [Frontend & Dashboard](#frontend--dashboard)
+8. [Security & Audits](#security--audits)
+9. [Development Timeline](#development-timeline)
+10. [Technical Stack](#technical-stack)
+11. [Success Metrics](#success-metrics)
+
+---
+
 ## Executive Summary
 
-Nomad Trust Layer is building action-specific verification infrastructure powered by zero-knowledge proofs. This document outlines our technical architecture, development milestones, and implementation timeline.
+Nomad Trust Layer is building AI agent verification infrastructure powered by zero-knowledge proofs. This document outlines our technical architecture, development milestones, and implementation timeline.
 
-**Core Mission:** Enable borderless verification without permanent identity systems.
+**Core Mission:** Enable cryptographic verification of AI agents without permanent identity systems.
 
 **Technical Foundation:** Customized Semaphore Protocol circuits deployed on Base for cost-efficient, high-throughput proof validation.
+
+**First Vertical:** AI agent verification (API abuse prevention, agent marketplace trust, multi-agent coordination).
+
+---
+
+## Architecture Overview
+
+### System Components
+```
+┌─────────────────────────────────────────────────────────────┐
+│                   Nomad Trust Layer Platform                 │
+├─────────────────────────────────────────────────────────────┤
+│                                                               │
+│  ┌──────────────┐      ┌──────────────┐   ┌──────────────┐ │
+│  │  AI Platform │      │ ZK Proof Gen │   │ Genesis NFT  │ │
+│  │   (AutoGPT)  │─────▶│   (Agent)    │   │   (Base)     │ │
+│  └──────────────┘      └──────────────┘   └──────────────┘ │
+│         │                      │                    │        │
+│         │                      ▼                    │        │
+│         │              ┌──────────────┐            │        │
+│         └─────────────▶│  API Gateway │◀───────────┘        │
+│                        └──────────────┘                     │
+│                              │                               │
+│                              ▼                               │
+│                   ┌─────────────────────┐                   │
+│                   │  Channel Selection  │                   │
+│                   │   (Round-Robin)     │                   │
+│                   └─────────────────────┘                   │
+│                              │                               │
+│                              ▼                               │
+│        ┌────────────────────────────────────────┐           │
+│        │       Genesis Channels (1-1000)        │           │
+│        │  ┌────┐ ┌────┐ ┌────┐       ┌────┐    │           │
+│        │  │ #1 │ │ #2 │ │ #3 │  ...  │#1000│   │           │
+│        │  └────┘ └────┘ └────┘       └────┘    │           │
+│        └────────────────────────────────────────┘           │
+│                              │                               │
+│                              ▼                               │
+│                   ┌─────────────────────┐                   │
+│                   │  ZK Proof Verifier  │                   │
+│                   │     (Base EVM)      │                   │
+│                   └─────────────────────┘                   │
+│                              │                               │
+│                              ▼                               │
+│                   ┌─────────────────────┐                   │
+│                   │  Fee Distribution   │                   │
+│                   │  70% Owner / 30% NTL│                   │
+│                   └─────────────────────┘                   │
+│                                                               │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Data Flow
+
+**AI Agent Verification Request Lifecycle:**
+
+1. **Agent Action** - AI agent needs cryptographic uniqueness proof
+2. **Client-Side Proof Generation** - Agent generates ZK proof locally
+3. **Platform Submission** - AI platform submits proof to Nomad API
+4. **Authentication** - API gateway validates API key and request
+5. **Channel Selection** - Smart contract selects Genesis Channel via round-robin
+6. **Verification** - Selected channel verifies proof cryptographically
+7. **Result Return** - Validation result returned to platform
+8. **Fee Distribution** - 70% to channel owner, 30% to protocol (automatic)
+9. **Analytics Update** - Dashboard updated with earnings data
+
+**Time:** ~3-5 seconds end-to-end (including proof generation)
 
 ---
 
@@ -20,10 +103,10 @@ Nomad Trust Layer is building action-specific verification infrastructure powere
 
 ### Smart Contract Development ✅
 
-**Nomad Node NFT Contract:**
+**Genesis Channel NFT Contract:**
 * ERC-721 standard implementation
-* Three-tier structure (Platinum, Titanium, Obsidian)
-* 1,000 total supply (333 Platinum, 333 Titanium, 334 Obsidian)
+* Three-tier structure (Patrician, Aristocrat, Imperial)
+* 1,000 total supply (333 Patrician, 333 Aristocrat, 334 Imperial)
 * Metadata IPFS integration
 * Crossmint payment integration
 * Transfer restrictions (optional lockup period)
@@ -37,13 +120,13 @@ Nomad Trust Layer is building action-specific verification infrastructure powere
 * Discord community server
 * Twitter presence
 * GitHub repository
-* Email infrastructure (team@nomadtrust.com)
+* Email infrastructure (team@nomadtrust.io)
 
 **Status:** Live and operational
 
 ### Initial Funding ✅
 
-* Nomad Node sales ($500-$1,000 per node)
+* Genesis Channel sales ($500-$2,500 per channel)
 * Target: $500K-$1M in development funding
 * No venture capital (community-funded)
 
@@ -55,14 +138,14 @@ Nomad Trust Layer is building action-specific verification infrastructure powere
 
 ### Milestone 1: Circuit Development (Weeks 1-4)
 
-**Objective:** Create custom Semaphore Protocol circuits for action-specific verification.
+**Objective:** Create custom Semaphore Protocol circuits for AI agent verification.
 
 **Deliverables:**
 
-1. **TokenLaunchProof Circuit**
+1. **AgentVerificationProof Circuit**
    * Simplified Semaphore circuit (~80 lines Circom)
    * Remove Merkle tree membership requirement
-   * Focus on identity commitment uniqueness
+   * Focus on agent identity commitment uniqueness
    * Optimize for single-action verification
    * Comprehensive constraint testing
 
@@ -88,7 +171,7 @@ Nomad Trust Layer is building action-specific verification infrastructure powere
 
 ### Milestone 2: Smart Contract Development (Weeks 5-6)
 
-**Objective:** Deploy verifier contracts and Nomad Channel infrastructure to Base.
+**Objective:** Deploy verifier contracts and Genesis Channel infrastructure to Base.
 
 **Deliverables:**
 
@@ -98,20 +181,20 @@ Nomad Trust Layer is building action-specific verification infrastructure powere
    * Gas-optimized verification
    * Event emission for tracking
 
-2. **Nomad Channel Registry**
-   * Register all 1,000 Nomad Channels
+2. **Genesis Channel Registry**
+   * Register all 1,000 Genesis Channels
    * Map NFT IDs to channel addresses
    * Owner verification and access control
    * Transfer handling
 
 3. **Routing Contract**
    * Round-robin channel selection
-   * Capacity-based weighting (Platinum 1x, Titanium 1.5x, Obsidian 2x)
+   * Capacity-based weighting (Patrician 1x, Aristocrat 1.5x, Imperial 2x)
    * Failover logic for unavailable channels
    * Load balancing across tiers
 
 4. **Fee Distribution Contract**
-   * Automatic 70/30 split (node holder / protocol)
+   * Automatic 70/30 split (channel holder / protocol)
    * Direct payment to owner wallets
    * Real-time settlement
    * Non-custodial architecture
@@ -128,7 +211,7 @@ Nomad Trust Layer is building action-specific verification infrastructure powere
 
 ### Milestone 3: Dashboard Development (Weeks 7-8)
 
-**Objective:** Build node holder dashboard for monitoring and management.
+**Objective:** Build channel holder dashboard for monitoring and management.
 
 **Deliverables:**
 
@@ -183,7 +266,7 @@ Nomad Trust Layer is building action-specific verification infrastructure powere
    * Database query optimization
 
 3. **Load Testing**
-   * Simulate 10,000 concurrent users
+   * Simulate 10,000 concurrent agent verifications
    * Test channel routing under load
    * Verify failover mechanisms
    * Measure system throughput
@@ -205,7 +288,7 @@ Nomad Trust Layer is building action-specific verification infrastructure powere
 **Deliverables:**
 
 1. **Circuit Audit**
-   * Auditor: Trail of Bits, Veridise, or equivalent
+   * Auditor: Trail of Bits, Veridise, or PSE Security
    * Scope: Custom Semaphore circuits
    * Timeline: 1-2 weeks
    * Cost: $50K-$75K
@@ -243,7 +326,7 @@ Nomad Trust Layer is building action-specific verification infrastructure powere
 **Activities:**
 * Final testing on Base mainnet
 * Marketing campaign preparation
-* Node holder communications
+* Channel holder communications
 * Documentation finalization
 * Support team training
 
@@ -265,8 +348,8 @@ Nomad Trust Layer is building action-specific verification infrastructure powere
 * ✅ Emergency procedures documented
 
 **Initial Focus:**
-* Node holder onboarding
-* First live verifications
+* Channel holder onboarding
+* First live AI agent verifications
 * Real-time monitoring
 * Issue triage and resolution
 * Community engagement
@@ -284,265 +367,761 @@ Nomad Trust Layer is building action-specific verification infrastructure powere
 * 95%+ channel activation rate (950+ of 1,000 channels)
 * 99.9% uptime
 * < 5 second average proof generation
-* < $0.30 average verification cost
-* Positive node holder feedback
+* < $0.02 average verification cost on Base
+* Positive channel holder feedback
 
 ---
 
-## Phase 4: Public API & Integrations (Q2 2026)
+## Phase 4: AI Platform Integrations (Q2 2026)
 
 ### Developer Platform Launch
 
 **Deliverables:**
 
 1. **Public API**
-   * RESTful API for verification requests
+   * RESTful API for AI agent verification requests
    * WebSocket support for real-time updates
    * Comprehensive documentation
-   * Code examples (JavaScript, Python, Go)
+   * Code examples (JavaScript, Python, TypeScript)
    * SDKs for popular languages
 
 2. **API Endpoints**
-   * `POST /v1/verify` - Submit verification proof
+   * `POST /v1/verify` - Submit agent verification proof
    * `GET /v1/verify/:id/status` - Check verification status
    * `GET /v1/stats` - Network statistics
    * `GET /v1/docs` - API documentation
 
 3. **Developer Tools**
-   * Proof generation library (npm package)
-   * Test environment (testnet)
+   * Proof generation library (npm package: `@nomad-trust/zk-sdk`)
+   * Test environment (Base Sepolia testnet)
    * Dashboard for API usage tracking
    * Rate limiting (10,000 requests/day free tier)
 
 4. **Integration Guides**
-   * Token launch integration
-   * Dating app age verification
-   * Affiliate platform integration
-   * General-purpose verification
+   * AI agent marketplace integration
+   * API abuse prevention setup
+   * Multi-agent system coordination
+   * General-purpose agent verification
 
-### Customer Onboarding
+### AI Platform Onboarding
 
-**Target Customers:**
+**Target Platforms (Priority 1):**
 
-1. **Token Launches** (Priority 1)
-   * Meme coin projects
-   * DeFi protocols
-   * NFT projects
-   * Fair launch platforms
-
-2. **Affiliate Networks** (Priority 2)
-   * CPA networks
-   * Performance marketing platforms
-   * Influencer platforms
-   * E-commerce affiliates
-
-3. **Consumer Apps** (Priority 3)
-   * Dating apps (age verification)
-   * Gaming platforms (achievement verification)
-   * Social media (bot prevention)
-   * Marketplaces (reputation verification)
+1. **AutoGPT** - Autonomous agent verification
+2. **LangChain** - Agent framework integration
+3. **AI Agent Marketplaces** - Trust without surveillance
+4. **OpenAI API** - Abuse prevention for leaked keys
+5. **Anthropic API** - Agent uniqueness verification
 
 **Success Criteria:**
-* 10+ paying customers by end of Q2
-* 100,000+ verifications/month
-* $21,000/month in network fees
-* $14,700/month distributed to node holders
+* 10+ AI platforms integrated by end of Q2
+* 100,000+ agent verifications/month
+* $10,000-$21,000/month in network fees
+* $7,000-$14,700/month distributed to channel holders
 
 ---
 
-## Phase 5: Multi-Vertical Expansion (Q2-Q4 2026)
+## Phase 5: Multi-Vertical Expansion (Q3-Q4 2026)
 
-### Q2 2026: Affiliate Marketing
+### Q3 2026: Multi-Agent Systems
 
-**Use Case:** Bot-proof conversion verification
+**Use Case:** Agent-to-agent verification in autonomous swarms
 
 **Technical Requirements:**
-* Prove: Human clicked affiliate link
-* Prove: Same human completed conversion
-* Privacy: Don't reveal user identity or behavior
-* Cost: $0.30-$0.50 per verified conversion
+* Prove: Agent is unique in the swarm
+* Prove: Agent is authorized for specific action
+* Privacy: Don't reveal agent architecture or owner identity
+* Cost: $0.10-$0.50 per verification
 
 **Revenue Model:**
-* Affiliate networks pay per verified conversion
-* Node holders earn 70% of verification fees
-* Market size: $17B with 30-40% bot fraud
-* Target: 1M verifications/month by end of Q2
+* AI platforms pay per agent verification
+* Channel holders earn 70% of verification fees
+* Target: 1M verifications/month by end of Q3
 
-### Q3 2026: Wellness & Insurance
+### Q4 2026: DAO Governance & Web3
 
-**Use Case:** Privacy-preserving fitness verification
+**Use Case:** Sybil-resistant voting and airdrop eligibility
 
 **Technical Requirements:**
-* Prove: Achieved fitness milestone (10K steps, 30 min exercise)
-* Prove: Credential earned (personal training certification)
-* Privacy: Don't reveal biometric data or identity
-* Cost: $5-$20 per verification
+* Prove: Unique voter (one person = one vote)
+* Prove: Airdrop eligibility without revealing wallet history
+* Privacy: Don't reveal identity or on-chain behavior
+* Cost: $0.10-$1.00 per verification
 
 **Revenue Model:**
-* Insurance companies pay for verified wellness claims
-* Corporate wellness programs pay for achievement verification
-* Target: 100K verifications/month by end of Q3
+* DAOs pay for Sybil-resistant governance
+* Protocols pay for fair airdrop distribution
+* Target: 500K verifications/month by end of Q4
 
-### Q4 2026: Credentials & Education
+### Q4 2026: Compliance-Lite Verification
 
-**Use Case:** Privacy-preserving credential verification
-
-**Technical Requirements:**
-* Prove: Holds professional license
-* Prove: Completed educational program
-* Prove: Background check passed
-* Privacy: Don't reveal full credential details
-* Cost: $10-$50 per verification
-
-**Revenue Model:**
-* Employers pay for credential verification
-* Educational institutions pay for transcript verification
-* Target: 50K verifications/month by end of Q4
-
-### Q4 2026: AI Compliance
-
-**Use Case:** AI model output verification
+**Use Case:** Privacy-preserving regulatory compliance
 
 **Technical Requirements:**
-* Prove: AI model meets safety standards
-* Prove: Age-appropriate content generated
-* Prove: Compliance with regulations
-* Privacy: Don't reveal model architecture or training data
+* Prove: Age > 18 (without revealing exact age)
+* Prove: Region compliance (without revealing exact location)
+* Prove: Accredited investor status (without revealing net worth)
 * Cost: $1-$10 per verification
 
 **Revenue Model:**
-* AI companies pay for compliance verification
-* Platforms pay for content moderation
-* Target: 200K verifications/month by end of Q4
+* Platforms pay for compliant user verification
+* No KYC, no data storage, no privacy invasion
+* Target: 100K verifications/month by end of Q4
 
 ---
 
-## Technical Architecture
+## Genesis Channel System
 
-### High-Level System Design
+### Core Concept
 
+**Genesis Channels are AI agent verification endpoints in the Nomad Trust Layer network.** Each of the 1,000 Genesis Channel NFTs represents ownership of a numbered channel that processes verification requests and earns fees.
+
+### Channel Structure
+
+**Base Smart Contract Implementation:**
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+/// @title GenesisChannel
+/// @notice Represents a single verification channel in the Nomad Trust Layer network
+struct GenesisChannel {
+    /// Channel identifier (1-1000)
+    uint16 channelId;
+    
+    /// NFT holder's wallet address
+    address owner;
+    
+    /// Channel tier: 1=Patrician, 2=Aristocrat, 3=Imperial
+    uint8 tier;
+    
+    /// Capacity multiplier based on tier (10=1.0x, 15=1.5x, 20=2.0x)
+    uint8 capacityWeight;
+    
+    /// Total verifications processed lifetime
+    uint64 totalVerifications;
+    
+    /// Total earnings in wei (lifetime)
+    uint256 totalEarned;
+    
+    /// Current active status
+    bool active;
+    
+    /// Last verification timestamp
+    uint256 lastVerificationTimestamp;
+    
+    /// Hourly verification count (for rate limiting)
+    uint32 hourlyVerificationCount;
+}
 ```
-User/App Layer
-(Dating app, token launch, affiliate platform, etc.)
-      ↓
-Proof Generation Layer
-- Client-side JS library (browser/mobile)
-- Generate ZK proof (~100ms)
-- identity_secret never leaves client
-      ↓
-Nomad API Gateway
-- Receive verification requests
-- Route to Nomad Channel (round-robin)
-- Return verification result
-- Log analytics
-      ↓
-Nomad Channel Smart Contracts
-(1,000 Channels on Base Mainnet)
-- Verify ZK proof cryptographically
-- Distribute fees (70% owner, 30% protocol)
-- Emit verification events
-      ↓
-Node Holder Wallets
-- Receive payments automatically
-- Non-custodial earnings
-- Withdraw anytime
+
+### Channel Tiers
+
+| Tier | Price | Channels | Capacity | Weight | Hourly Max |
+|---|---|---|---|---|---|
+| **Patrician** | $500 | #1-333 | Standard | 1x | 100 |
+| **Aristocrat** | $1,000 | #334-666 | Enhanced | 1.5x | 200 |
+| **Imperial** | $2,500 | #667-1000 | Premium | 2x | 500 |
+
+**Capacity Weight** determines how often a channel is selected in routing:
+- Patrician: Selected every rotation
+- Aristocrat: Selected 1.5x as often (appears in rotation more frequently)
+- Imperial: Selected 2x as often (highest priority)
+
+### Routing Algorithm
+
+**Round-Robin with Capacity Weighting:**
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract ChannelRouter {
+    uint16 public lastChannelUsed;
+    uint64 public rotationCount;
+    
+    mapping(uint16 => GenesisChannel) public channels;
+    
+    event ChannelSelected(uint16 indexed channelId, uint64 rotationCount);
+    
+    /// @notice Select next available Genesis Channel
+    /// @return channelId The selected channel ID
+    function selectNextChannel() external returns (uint16) {
+        uint16 attempts = 0;
+        uint16 maxAttempts = 1000;
+        
+        while (attempts < maxAttempts) {
+            // Increment to next channel (1-1000)
+            lastChannelUsed = (lastChannelUsed % 1000) + 1;
+            
+            GenesisChannel memory channel = channels[lastChannelUsed];
+            
+            // Check if channel is available
+            if (channel.active && !isAtCapacity(channel)) {
+                // Apply capacity weighting
+                if (shouldSelectBasedOnWeight(channel)) {
+                    rotationCount++;
+                    emit ChannelSelected(lastChannelUsed, rotationCount);
+                    return lastChannelUsed;
+                }
+            }
+            
+            attempts++;
+        }
+        
+        revert("No channels available");
+    }
+    
+    /// @notice Check if channel is at hourly capacity
+    function isAtCapacity(GenesisChannel memory channel) 
+        internal 
+        view 
+        returns (bool) 
+    {
+        if (block.timestamp - channel.lastVerificationTimestamp > 1 hours) {
+            return false;  // Hour has reset
+        }
+        
+        uint32 maxHourly = channel.tier == 1 ? 100 : 
+                          (channel.tier == 2 ? 200 : 500);
+        return channel.hourlyVerificationCount >= maxHourly;
+    }
+    
+    /// @notice Determine if channel should be selected based on tier weight
+    function shouldSelectBasedOnWeight(GenesisChannel memory channel) 
+        internal 
+        view 
+        returns (bool) 
+    {
+        if (channel.tier == 1) return true;  // Patrician: always selected
+        if (channel.tier == 2) return rotationCount % 2 == 0;  // Aristocrat: ~1.5x
+        if (channel.tier == 3) return true;  // Imperial: always selected (2x)
+        return false;
+    }
+}
 ```
-
-### Data Flow
-
-**Verification Request Flow:**
-
-1. User generates `identity_secret` (client-side, private)
-2. Computes `identity_commitment = hash(identity_secret)`
-3. Creates `proof_hash = hash(identity_secret, action_id)`
-4. Generates ZK proof proving knowledge of identity_secret
-5. App submits proof to Nomad API
-6. API routes request to next Nomad Channel (round-robin)
-7. Channel verifies proof on Base
-8. Result returned to app (valid/invalid)
-9. Fee distributed (70% to channel owner, 30% to protocol)
-10. Node holder sees earnings in dashboard
 
 **Key Properties:**
-* Identity secret never transmitted
-* No central database of proofs
-* Each proof unique to action
-* Cannot reuse proofs across actions
-* Cannot link proofs to identity
+- **Fair Distribution** - All channels get turns over time
+- **Capacity Respect** - Higher tiers get proportionally more traffic
+- **Failover** - Skips unavailable/maxed channels automatically
+- **Deterministic** - Same state produces same selection
+- **Gas Efficient** - Simple counter increment, no random number generation
+
+### Fee Distribution
+
+**Payment Split:**
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract FeeDistributor {
+    uint256 public constant OWNER_SHARE = 70;  // 70%
+    uint256 public constant PROTOCOL_SHARE = 30;  // 30%
+    
+    address public protocolWallet;
+    mapping(uint16 => GenesisChannel) public channels;
+    
+    event FeesDistributed(
+        uint16 indexed channelId,
+        address indexed channelOwner,
+        uint256 ownerAmount,
+        uint256 protocolAmount
+    );
+    
+    /// @notice Distribute verification fee between owner and protocol
+    function distributeFees(uint16 channelId) external payable {
+        GenesisChannel memory channel = channels[channelId];
+        require(channel.active, "Channel not active");
+        
+        uint256 totalFee = msg.value;
+        
+        // Calculate split (70/30)
+        uint256 ownerShare = (totalFee * OWNER_SHARE) / 100;
+        uint256 protocolFee = totalFee - ownerShare;
+        
+        // Transfer to channel owner
+        (bool ownerSuccess, ) = channel.owner.call{value: ownerShare}("");
+        require(ownerSuccess, "Owner transfer failed");
+        
+        // Transfer to protocol wallet
+        (bool protocolSuccess, ) = protocolWallet.call{value: protocolFee}("");
+        require(protocolSuccess, "Protocol transfer failed");
+        
+        // Update channel earnings tracking
+        channels[channelId].totalEarned += ownerShare;
+        
+        emit FeesDistributed(channelId, channel.owner, ownerShare, protocolFee);
+    }
+}
+```
+
+**Fee Structure:**
+- **Standard AI Agent Verification:** $0.10-$0.50 per verification
+- **Owner Receives:** 70% ($0.07-$0.35)
+- **Protocol Receives:** 30% ($0.03-$0.15)
+- **Gas Cost:** ~$0.01-$0.02 (Base L2 fees)
+
+---
+
+## ZK Circuit Specifications
+
+### Circuit Architecture
+
+**Based on Semaphore Protocol, customized for AI agent verification:**
+```circom
+pragma circom 2.1.0;
+
+include "circomlib/circuits/poseidon.circom";
+
+template AgentVerificationProof() {
+    // Private inputs (never revealed)
+    signal input agentSecret;
+    signal input actionId;
+    
+    // Public outputs (posted on-chain)
+    signal output agentCommitment;
+    signal output actionNullifier;
+    
+    // Generate agent identity commitment
+    component identityHasher = Poseidon(1);
+    identityHasher.inputs[0] <== agentSecret;
+    agentCommitment <== identityHasher.out;
+    
+    // Generate action nullifier (prevents double-verification)
+    component nullifierHasher = Poseidon(2);
+    nullifierHasher.inputs[0] <== agentSecret;
+    nullifierHasher.inputs[1] <== actionId;
+    actionNullifier <== nullifierHasher.out;
+}
+
+component main {public [actionId]} = AgentVerificationProof();
+```
+
+### Circuit Properties
+
+**Complexity:**
+- **Constraints:** ~1,200 (2x Poseidon hash operations)
+- **Proof Generation Time:** ~2 seconds (client-side, browser/agent)
+- **Proof Size:** 256 bytes (Groth16)
+- **Verification Gas:** ~250,000 gas (~$0.01-$0.02 on Base)
+
+**Security:**
+- **Soundness:** Attacker cannot forge proof without agentSecret
+- **Privacy:** agentSecret never revealed, only commitment posted
+- **Uniqueness:** Same agent + same action = same nullifier = rejected
+- **Unlinkability:** Different actions produce different nullifiers
+
+### Proof Generation Flow
+
+**Client-Side (JavaScript/Agent):**
+```javascript
+import { groth16 } from "snarkjs";
+
+async function generateAgentProof(agentSecret, actionId) {
+    // Prepare circuit inputs
+    const inputs = {
+        agentSecret: agentSecret,
+        actionId: actionId
+    };
+    
+    // Generate witness
+    const { proof, publicSignals } = await groth16.fullProve(
+        inputs,
+        "circuits/agent_verification.wasm",
+        "circuits/agent_verification_final.zkey"
+    );
+    
+    // Extract public outputs
+    const agentCommitment = publicSignals[0];
+    const actionNullifier = publicSignals[1];
+    
+    return {
+        proof,
+        agentCommitment,
+        actionNullifier
+    };
+}
+```
+
+**On-Chain Verification (Solidity):**
+```solidity
+interface IVerifier {
+    function verifyProof(
+        uint256[2] calldata _pA,
+        uint256[2][2] calldata _pB,
+        uint256[2] calldata _pC,
+        uint256[2] calldata _pubSignals
+    ) external view returns (bool);
+}
+
+contract ProofValidator {
+    IVerifier public verifier;
+    mapping(uint256 => bool) public nullifierUsed;
+    
+    function validateAgentAction(
+        uint256[8] calldata proof,
+        uint256 actionId,
+        uint256 agentCommitment,
+        uint256 actionNullifier
+    ) external returns (bool) {
+        // Check nullifier hasn't been used
+        require(!nullifierUsed[actionNullifier], "Agent action already verified");
+        
+        // Verify ZK proof
+        bool isValid = verifier.verifyProof(
+            [proof[0], proof[1]],
+            [[proof[2], proof[3]], [proof[4], proof[5]]],
+            [proof[6], proof[7]],
+            [actionId, agentCommitment, actionNullifier]
+        );
+        
+        require(isValid, "Invalid proof");
+        
+        // Mark nullifier as used
+        nullifierUsed[actionNullifier] = true;
+        
+        return true;
+    }
+}
+```
+
+---
+
+## API Infrastructure
+
+### REST API Endpoints
+
+**Base URL:** `https://api.nomadtrust.io/v1`
+
+**1. Submit AI Agent Verification**
+```http
+POST /verify
+Content-Type: application/json
+Authorization: Bearer {API_KEY}
+
+{
+  "proof": [...],
+  "actionId": "0x...",
+  "agentCommitment": "0x...",
+  "actionNullifier": "0x..."
+}
+
+Response:
+{
+  "success": true,
+  "channelId": 42,
+  "transactionHash": "0x...",
+  "verificationTime": 347
+}
+```
+
+**2. Get Channel Stats**
+```http
+GET /channel/{channelId}/stats
+
+Response:
+{
+  "channelId": 42,
+  "owner": "0x...",
+  "tier": "Patrician",
+  "totalVerifications": 1247,
+  "totalEarned": "0.087 ETH",
+  "last24h": {
+    "verifications": 42,
+    "earned": "0.003 ETH"
+  }
+}
+```
+
+**3. Get Channel Earnings**
+```http
+GET /channel/{channelId}/earnings
+
+Response:
+{
+  "channelId": 42,
+  "availableToWithdraw": "0.043 ETH",
+  "totalEarned": "0.087 ETH",
+  "totalWithdrawn": "0.044 ETH"
+}
+```
+
+### WebSocket Real-Time Updates
+```javascript
+const ws = new WebSocket('wss://api.nomadtrust.io/v1/channel/42/live');
+
+ws.onmessage = (event) => {
+  const update = JSON.parse(event.data);
+  
+  if (update.type === 'verification_processed') {
+    console.log(`Earned ${update.amount} ETH`);
+    console.log(`Total verifications: ${update.totalCount}`);
+  }
+};
+```
+
+**Event Types:**
+- `verification_processed` - New verification through your channel
+- `earnings_update` - Earnings balance changed
+- `channel_status_change` - Active status updated
+
+**Rate Limiting:**
+- 100 requests/minute per API key
+- 1000 requests/hour per API key
+- WebSocket: 1 connection per channel
+
+**SLA Targets:**
+- Uptime: 99.9%
+- Response time: <500ms (p95)
+- Verification time: <5 seconds end-to-end
+
+---
+
+## Frontend & Dashboard
+
+### Channel Holder Dashboard
+
+**Tech Stack:**
+- **Framework:** Next.js 14 (React)
+- **Styling:** Tailwind CSS
+- **Wallet:** wagmi + RainbowKit (Ethereum wallet connection)
+- **Charts:** Recharts
+- **API:** REST + WebSocket (real-time updates)
+
+**Features:**
+
+**1. Channel Overview**
+```typescript
+interface ChannelOverview {
+  channelId: number;
+  tier: 'Patrician' | 'Aristocrat' | 'Imperial';
+  owner: string;
+  active: boolean;
+  totalVerifications: number;
+  totalEarned: string;  // in ETH
+  lastVerification: Date;
+}
+```
+
+**2. Real-Time Earnings**
+```typescript
+// WebSocket connection for live updates
+const ws = new WebSocket('wss://api.nomadtrust.io/v1/channel/42/live');
+
+ws.onmessage = (event) => {
+  const update = JSON.parse(event.data);
+  if (update.type === 'verification_processed') {
+    updateEarnings(update.amount);
+    showNotification(`Earned ${update.amount} ETH from AI agent verification`);
+  }
+};
+```
+
+**3. Analytics Dashboard**
+- Hourly/daily/monthly verification charts
+- Earnings breakdown by time period
+- Network activity comparison
+- Tier performance metrics
+- Withdrawal history
+
+**4. Withdrawal Interface**
+- Current balance display
+- One-click withdrawal to connected wallet
+- Transaction history
+- Gas fee preview
+
+### Proof Generation Library
+
+**Client-Side JavaScript SDK:**
+```typescript
+import { generateProof, verifyProof } from '@nomad-trust/zk-sdk';
+
+// Generate proof for AI agent
+async function generateAgentVerificationProof(
+  agentSecret: string,
+  actionId: string
+): Promise<ProofData> {
+  const proof = await generateProof({
+    circuit: 'agent_verification',
+    privateInputs: {
+      agentSecret,
+    },
+    publicInputs: {
+      actionId,
+      timestamp: Date.now(),
+    },
+  });
+  
+  return proof;
+}
+
+// Submit to platform backend
+async function submitProof(proof: ProofData) {
+  const response = await fetch('/api/verify', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(proof),
+  });
+  
+  return response.json();
+}
+```
+
+---
+
+## Security & Audits
+
+### Audit Schedule
+
+| Component | Auditor | Timeline | Budget |
+|---|---|---|---|
+| **ZK Circuits** | Trail of Bits, Veridise, or PSE Security | Q1 2026 (Week 11) | $50K-$75K |
+| **Smart Contracts** | OpenZeppelin or Consensys Diligence | Q1 2026 (Week 12) | $75K-$100K |
+| **API Security** | Internal + Penetration Test | Q2 2026 | $25K-$50K |
+
+### Security Measures
+
+**Circuit Security:**
+- Constraint validation
+- Soundness verification
+- Completeness checks
+- Trusted setup (Powers of Tau)
+
+**Smart Contract Security:**
+- Formal verification (critical functions)
+- Fuzz testing (100K+ iterations)
+- Static analysis (Slither, Mythril)
+- Test coverage >95%
+
+**Operational Security:**
+- Multi-sig admin controls (3-of-5)
+- Time-locked upgrades (48 hours)
+- Rate limiting and DDoS protection
+- Encrypted data at rest and in transit
+
+### Bug Bounty Program
+
+**Launch:** Q2 2026  
+**Total Pool:** $50K-$100K
+
+**Severity Tiers:**
+- **Critical:** $10K-$25K (funds at risk, protocol break)
+- **High:** $5K-$10K (significant vulnerability)
+- **Medium:** $1K-$5K (edge cases, DoS)
+- **Low:** $250-$1K (minor issues)
+
+**Scope:**
+- Smart contracts
+- ZK circuits
+- API endpoints
+- Dashboard application
+
+---
+
+## Development Timeline
+
+### Q1 2026: Foundation (12 Weeks)
+
+**Weeks 1-4: Circuit Development**
+- [ ] Set up Circom development environment
+- [ ] Implement AgentVerificationProof circuit
+- [ ] Write circuit tests (>100 test cases)
+- [ ] Optimize for proof generation speed
+- [ ] Generate proving and verifying keys
+
+**Weeks 5-6: Smart Contract Development**
+- [ ] Initialize Hardhat/Foundry project
+- [ ] Implement Genesis Channel registry
+- [ ] Build routing algorithm
+- [ ] Create fee distribution logic
+- [ ] Write comprehensive tests
+
+**Weeks 7-8: Frontend Development**
+- [ ] Set up Next.js project
+- [ ] Build proof generation interface
+- [ ] Create channel holder dashboard
+- [ ] Implement wallet integration (wagmi + RainbowKit)
+- [ ] Design real-time updates (WebSocket)
+
+**Weeks 9-10: Integration & Testing**
+- [ ] End-to-end testing (agent → verification → payment)
+- [ ] Performance benchmarking
+- [ ] Load testing (simulate 100K agent verifications)
+- [ ] Bug fixes and optimization
+
+**Weeks 11-12: Security Audits**
+- [ ] Circuit audit
+- [ ] Smart contract audit
+- [ ] Fix identified issues
+- [ ] Prepare for launch
+
+**Week 13: Genesis Deployment**
+- [ ] Deploy to Base mainnet
+- [ ] Launch channel holder dashboard
+- [ ] Process first live AI agent verifications
+- [ ] Monitor and support
+
+### Q2 2026: AI Platform Integrations
+
+- [ ] Public API release
+- [ ] SDK libraries (JS, Python, TypeScript)
+- [ ] Developer documentation
+- [ ] Integration examples
+- [ ] AI platform onboarding (AutoGPT, LangChain, etc.)
+
+### Q3-Q4 2026: Multi-Vertical Expansion
+
+- [ ] Multi-agent system verification
+- [ ] DAO governance integration
+- [ ] Compliance-lite circuits
+- [ ] Enterprise partnerships
+- [ ] Protocol optimizations
 
 ---
 
 ## Technical Stack
 
-### Zero-Knowledge Proofs
-* **Circom** - Circuit description language
-* **SnarkJS** - Proof generation and verification
-* **Semaphore Protocol** - Base protocol (customized)
-* **Groth16** - Proving system (may upgrade to PlonK later)
+### Core Technologies
 
-### Blockchain
-* **Base** - Ethereum L2 (OP Stack)
-* **Solidity ^0.8.20** - Smart contract language
-* **Hardhat** - Development environment
-* **OpenZeppelin** - Battle-tested contract libraries
-* **Ethers.js** - Web3 integration
+**Blockchain:**
+- Base (Ethereum L2)
+- Hardhat/Foundry for development
+- Solidity 0.8.20+
 
-### Backend
-* **Node.js** - API server
-* **Express.js** - Web framework
-* **PostgreSQL** - Primary database
-* **Redis** - Caching and rate limiting
-* **AWS/GCP** - Cloud infrastructure
+**Zero-Knowledge:**
+- Circom 2.1+
+- SnarkJS
+- Groth16 proving system
+- Powers of Tau trusted setup
 
-### Frontend
-* **React** - UI framework
-* **Next.js** - Full-stack framework
-* **TypeScript** - Type-safe JavaScript
-* **TailwindCSS** - Styling
-* **WalletConnect** - Multi-wallet support
-* **Chart.js** - Data visualization
+**Backend:**
+- TypeScript with Express/Fastify
+- PostgreSQL 15+
+- Redis 7+
+- Docker + Kubernetes
 
-### DevOps
-* **GitHub Actions** - CI/CD
-* **Docker** - Containerization
-* **Kubernetes** - Orchestration (if needed at scale)
-* **Datadog** - Monitoring and logging
-* **PagerDuty** - Incident management
+**Frontend:**
+- Next.js 14+
+- TypeScript 5+
+- Tailwind CSS
+- wagmi + RainbowKit (wallet connection)
 
----
+**Infrastructure:**
+- AWS or GCP
+- Cloudflare (CDN + DDoS)
+- Prometheus + Grafana (monitoring)
+- Sentry (error tracking)
 
-## Risk Mitigation
+### Development Tools
 
-### Technical Risks
-
-**Risk:** Circuit bugs or vulnerabilities
-**Mitigation:** Professional audits, comprehensive testing, formal verification
-
-**Risk:** Smart contract exploits
-**Mitigation:** Audits, bug bounty, time-locked upgrades, emergency pause
-
-**Risk:** Gas cost spikes on Base
-**Mitigation:** Monitor gas, optimize contracts, alternative L2 contingency
-
-**Risk:** Proof generation too slow on mobile
-**Mitigation:** WASM optimization, progressive proof generation, fallback to server-side
-
-**Risk:** Channel routing fails
-**Mitigation:** Automatic failover, health checks, redundancy
-
-### Business Risks
-
-**Risk:** Low customer adoption
-**Mitigation:** Multi-vertical approach, aggressive BD, compelling pricing
-
-**Risk:** Regulatory challenges
-**Mitigation:** Legal compliance, clear disclaimers, non-custodial architecture
-
-**Risk:** Competition from established players
-**Mitigation:** Speed to market, superior UX, cost advantage, multi-chain expansion
-
-**Risk:** Network effects don't materialize
-**Mitigation:** Subsidize early verifications, partnerships, ecosystem incentives
+- **IDE:** VSCode with Solidity extension
+- **Testing:** Hardhat test framework, Jest
+- **CI/CD:** GitHub Actions
+- **Version Control:** Git + GitHub
+- **Documentation:** Docusaurus
 
 ---
 
@@ -558,19 +1137,19 @@ Node Holder Wallets
 
 ### Business Metrics (End of 2026)
 
-* **Total verifications:** 10M+
-* **Paying customers:** 50+
-* **Monthly recurring revenue:** $200K+
-* **Node holder earnings:** $140K+/month distributed
-* **Verticals live:** 4+ (tokens, affiliates, wellness, credentials)
+* **Total AI agent verifications:** 10M+
+* **AI platforms integrated:** 50+
+* **Monthly recurring revenue:** $100K-$200K+
+* **Channel holder earnings:** $70K-$140K+/month distributed
+* **Verticals live:** 4+ (AI agents, multi-agent systems, DAOs, compliance)
 
 ### Community Metrics (End of 2026)
 
-* **Node holders:** 800+ unique wallets
+* **Channel holders:** 800+ unique wallets
 * **Discord members:** 5,000+
 * **Twitter followers:** 10,000+
 * **GitHub contributors:** 25+
-* **Node satisfaction:** 4.5+/5.0
+* **Channel holder satisfaction:** 4.5+/5.0
 
 ---
 
@@ -580,12 +1159,12 @@ Node Holder Wallets
 * Multi-language support
 * Regional partnerships
 * Compliance with international regulations
-* Cross-chain expansion (Arbitrum, Polygon, etc.)
+* Cross-chain expansion (Arbitrum, Polygon, Optimism)
 
 ### Q2 2027: Mobile SDK
 * React Native SDK
 * iOS/Android native libraries
-* Simplified proof generation for mobile apps
+* Simplified proof generation for mobile agents
 * Enhanced mobile dashboard
 
 ### Q3 2027: Enterprise Features
@@ -598,25 +1177,28 @@ Node Holder Wallets
 * $NTL token launch
 * DAO formation
 * Community governance of protocol parameters
-* Enhanced node holder benefits
+* Enhanced channel holder benefits
 
 ---
 
 ## Conclusion
 
-Nomad Trust Layer is building the infrastructure for borderless verification. By combining zero-knowledge proofs with decentralized infrastructure ownership, we're creating a new model for digital trust that protects privacy, prevents manipulation, and rewards early supporters.
+Nomad Trust Layer is building AI agent verification infrastructure that protects privacy, prevents manipulation, and rewards early supporters.
 
 **Our approach is:**
 * **Technically sound** - Built on audited protocols, deployed to proven infrastructure
-* **Economically aligned** - Node holders earn as the network grows
+* **Economically aligned** - Channel holders earn as the network grows
 * **Legally compliant** - Infrastructure ownership, not securities
-* **Strategically positioned** - Multi-vertical from day one
-* **Community-owned** - 1,000 node holders, no VC control
+* **Strategically positioned** - AI-first with multi-vertical expansion
+* **Community-owned** - 1,000 channel holders, no VC control
 
-**Join us in building the trust layer for a borderless world.**
+**Join us in building the trust layer for AI systems.**
 
 ---
 
-*Built by [0L1 Labs](https://0l1labs.com)*
+**This roadmap is subject to change based on development progress, security requirements, and market feedback.**
 
-*For technical questions: team@nomadtrust.com*
+**Last updated:** December 2025  
+**Next review:** February 2026
+
+*For technical questions: team@nomadtrust.io*
