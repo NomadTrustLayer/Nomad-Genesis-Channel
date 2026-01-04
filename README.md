@@ -177,12 +177,25 @@ When you purchase a Genesis Channel, you own:
 * Audited by Trail of Bits, Veridise, PSE Security
 * Production-tested by major Web3 projects (millions of proofs verified)
 
-**Our Customization:** AgentVerificationProof Circuit
+**Built on Semaphore Protocol (Production-Ready ZK)**
+* Industry-standard zero-knowledge proof system
+* Audited by Trail of Bits, Veridise, PSE Security
+* Millions of proofs verified in production
+* Agent identity commitments + nullifier generation
+* Privacy guarantees proven cryptographically
 
-* Simplified from ~150 to ~80 lines of Circom
-* Optimized for AI agent verification
-* Removes Merkle tree membership requirement
-* Focuses on cryptographic uniqueness validation
+**Nomad's Innovation: Economic & Routing Layer**
+* Genesis Channel infrastructure ownership (1,000 NFTs)
+* Round-robin routing with tier-weighted capacity
+* Automatic 70/30 fee distribution
+* Real-time earnings tracking
+* Non-custodial architecture (you control funds)
+
+**Roadmap: Custom ZK Extensions (Q3-Q4 2026)**
+* Compliance-lite verification (age, region, accreditation)
+* Premium agent tiers (enhanced security guarantees)
+* Multi-party computation (agent swarm coordination)
+* Enterprise features (custom proof requirements)
 
 **Deployment:** Base (Ethereum L2)
 
