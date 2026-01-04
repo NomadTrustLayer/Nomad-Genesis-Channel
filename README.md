@@ -75,7 +75,7 @@ When you purchase a Genesis Channel, you own:
 
 **Your Earnings at Different Network Scales:**
 
-| Network Monthly Volume | Patrician Earnings | Aristocrat Earnings | Imperial Earnings |
+| Network Monthly Volume | Sentinel Earnings | Guardian Earnings | Sovereign Earnings |
 | --- | --- | --- | --- |
 | **1M verifications** (Early Stage) | $70/mo | $105/mo | $140/mo |
 | **10M verifications** (Growth Stage) | $700/mo | $1,050/mo | $1,400/mo |
@@ -85,25 +85,25 @@ When you purchase a Genesis Channel, you own:
 
 ### Three Tiers
 
-**Patrician - $500 (Channels #1-333)**
+**Sentinel - $500 (Channels #1-500)**
 
 * Standard verification capacity
 * 100 verifications/hour max throughput
 * 1x routing weight (baseline share)
 * Best value for early adopters
 
-**Aristocrat - $1,000 (Channels #334-666)**
+**Guardian - $1,000 (Channels #501-900)**
 
 * Enhanced verification capacity
 * 200 verifications/hour max throughput
 * 1.5x routing weight (50% more traffic)
 * Premium positioning
 
-**Imperial - $2,500 (Channels #667-1000)**
+**Sovereign - $2,500 (Channels #901-1000)**
 
 * Maximum verification capacity
 * 500 verifications/hour max throughput
-* 2x routing weight (2x traffic vs Patrician)
+* 2x routing weight (2x traffic vs Sentinel)
 * Maximum earning potential
 
 **Why Tiers?** Higher capacity channels get routed more traffic at scale, enabling proportional earnings based on infrastructure investment.
@@ -198,7 +198,7 @@ When you purchase a Genesis Channel, you own:
 struct GenesisChannel {
     uint16 channelId;              // 1-1000
     address owner;                  // NFT holder's wallet
-    uint8 tier;                     // 1=Patrician, 2=Aristocrat, 3=Imperial
+    uint8 tier;                     // 1=Sentinel, 2=Guardian, 3=Sovereign
     uint64 totalVerifications;      // Lifetime verification count
     uint256 totalEarned;            // Lifetime earnings in wei
     bool active;                    // Processing status
@@ -208,7 +208,7 @@ struct GenesisChannel {
 **Routing Algorithm:**
 
 * Round-robin load balancing through all active channels
-* Capacity-weighted routing (Aristocrat 1.5x, Imperial 2x)
+* Capacity-weighted routing (Guardian 1.5x, Sovereign 2x)
 * Automatic failover if channel unavailable/maxed out
 * Fair distribution guaranteed mathematically
 
@@ -399,11 +399,12 @@ struct GenesisChannel {
 ## 📚 Documentation
 
 * **[Technical Roadmap](TECHNICAL_ROADMAP.md)** - Complete technical specifications
+* **[Development Roadmap](ROADMAP.md)** - Week-by-week development plan
+* **[Performance Benchmarks](BENCHMARKS.md)** - Circuit and contract performance metrics
+* **[Integration Guide](INTEGRATIONS.md)** - Developer integration examples
 * **[Genesis Channel Architecture](TECHNICAL_ROADMAP.md#genesis-channel-system)** - Smart contract design & routing
 * **[Security Policy](SECURITY.md)** - Security practices & reporting
 * **[Contributing Guidelines](CONTRIBUTING.md)** - How to contribute
-* **[API Documentation](#)** - Coming Q2 2026
-* **[Integration Guides](#)** - Coming Q2 2026
 
 ### External Resources
 
@@ -416,9 +417,9 @@ struct GenesisChannel {
 ## 🌐 Links
 
 * **Website:** [nomadtrust.io](https://nomadtrust.io)
+* **Mint:** [mint.nomadtrust.io](https://mint.nomadtrust.io)
 * **Twitter:** [@nomadtrustlayer](https://twitter.com/nomadtrustlayer)
 * **Discord:** [Join our community](https://discord.gg/nomadtrustlayer)
-* **Telegram:** [Nomad Trust Layer Community](#)
 
 ---
 
