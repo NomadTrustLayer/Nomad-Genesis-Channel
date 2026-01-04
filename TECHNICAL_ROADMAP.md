@@ -2,7 +2,7 @@
 
 **Nomad Trust Layer: AI Agent Verification Infrastructure**
 
-*Last Updated: December 2025*
+*Last Updated: January 2026*
 
 ---
 
@@ -105,8 +105,8 @@ Nomad Trust Layer is building AI agent verification infrastructure powered by ze
 
 **Genesis Channel NFT Contract:**
 * ERC-721 standard implementation
-* Three-tier structure (Patrician, Aristocrat, Imperial)
-* 1,000 total supply (333 Patrician, 333 Aristocrat, 334 Imperial)
+* Three-tier structure (Sentinel, Guardian, Sovereign)
+* 1,000 total supply (500 Sentinel, 400 Guardian, 100 Sovereign)
 * Metadata IPFS integration
 * Crossmint payment integration
 * Transfer restrictions (optional lockup period)
@@ -189,7 +189,7 @@ Nomad Trust Layer is building AI agent verification infrastructure powered by ze
 
 3. **Routing Contract**
    * Round-robin channel selection
-   * Capacity-based weighting (Patrician 1x, Aristocrat 1.5x, Imperial 2x)
+   * Capacity-based weighting (Sentinel 1x, Guardian 1.5x, Sovereign 2x)
    * Failover logic for unavailable channels
    * Load balancing across tiers
 
@@ -421,9 +421,37 @@ Nomad Trust Layer is building AI agent verification infrastructure powered by ze
 
 ---
 
-## Phase 5: Multi-Vertical Expansion (Q3-Q4 2026)
+## Phase 5: Token Launch & Multi-Vertical Expansion (Q2-Q4 2026)
 
-### Q3 2026: Multi-Agent Systems
+### Q2 2026: $NTL Token Launch
+
+**Primary Goal:** Launch governance token and reward Genesis Channel holders
+
+**Token Details:**
+- **Launch Date:** June 2026
+- **Total Supply:** 1,000,000,000 $NTL (fixed)
+- **Genesis Allocation:** 25% (250M tokens)
+- **Legendary Founders:** Additional 5% (50M tokens)
+
+**Distribution Mechanism:**
+- Tier-weighted allocation (Sentinel 1x, Guardian 1.5x, Sovereign 2x)
+- Legendary Founder 3x multiplier
+- Hold duration bonus (+10% per month, max +50%)
+- 30% immediate unlock, 70% vested over 12 months
+
+**Token Utility:**
+- Protocol governance voting
+- Staking for earnings boost (+10-20%)
+- Fee discounts for AI platforms
+- Channel capacity upgrades
+
+**DAO Formation:**
+- Governance contracts deployed
+- Treasury management (300M $NTL = 30% of supply)
+- Community voting on protocol parameters
+- Proposal and voting mechanisms
+
+### Q3 2026: Multi-Agent Systems & Token Utility
 
 **Use Case:** Agent-to-agent verification in autonomous swarms
 
@@ -492,7 +520,7 @@ struct GenesisChannel {
     /// NFT holder's wallet address
     address owner;
     
-    /// Channel tier: 1=Patrician, 2=Aristocrat, 3=Imperial
+    /// Channel tier: 1=Sentinel, 2=Guardian, 3=Sovereign
     uint8 tier;
     
     /// Capacity multiplier based on tier (10=1.0x, 15=1.5x, 20=2.0x)
@@ -519,14 +547,14 @@ struct GenesisChannel {
 
 | Tier | Price | Channels | Capacity | Weight | Hourly Max |
 |---|---|---|---|---|---|
-| **Patrician** | $500 | #1-333 | Standard | 1x | 100 |
-| **Aristocrat** | $1,000 | #334-666 | Enhanced | 1.5x | 200 |
-| **Imperial** | $2,500 | #667-1000 | Premium | 2x | 500 |
+| **Sentinel** | $500 | #1-500 | Standard | 1x | 100 |
+| **Guardian** | $1,000 | #501-900 | Enhanced | 1.5x | 200 |
+| **Sovereign** | $2,500 | #901-1000 | Premium | 2x | 500 |
 
 **Capacity Weight** determines how often a channel is selected in routing:
-- Patrician: Selected every rotation
-- Aristocrat: Selected 1.5x as often (appears in rotation more frequently)
-- Imperial: Selected 2x as often (highest priority)
+- Sentinel: Selected every rotation
+- Guardian: Selected 1.5x as often (appears in rotation more frequently)
+- Sovereign: Selected 2x as often (highest priority)
 
 ### Routing Algorithm
 
@@ -592,9 +620,9 @@ contract ChannelRouter {
         view 
         returns (bool) 
     {
-        if (channel.tier == 1) return true;  // Patrician: always selected
-        if (channel.tier == 2) return rotationCount % 2 == 0;  // Aristocrat: ~1.5x
-        if (channel.tier == 3) return true;  // Imperial: always selected (2x)
+        if (channel.tier == 1) return true;  // Sentinel: always selected
+        if (channel.tier == 2) return rotationCount % 2 == 0;  // Guardian: ~1.5x
+        if (channel.tier == 3) return true;  // Sovereign: always selected (2x)
         return false;
     }
 }
@@ -823,7 +851,7 @@ Response:
 {
   "channelId": 42,
   "owner": "0x...",
-  "tier": "Patrician",
+  "tier": "Sentinel",
   "totalVerifications": 1247,
   "totalEarned": "0.087 ETH",
   "last24h": {
@@ -894,7 +922,7 @@ ws.onmessage = (event) => {
 ```typescript
 interface ChannelOverview {
   channelId: number;
-  tier: 'Patrician' | 'Aristocrat' | 'Imperial';
+  tier: 'Sentinel' | 'Guardian' | 'Sovereign';
   owner: string;
   active: boolean;
   totalVerifications: number;
@@ -1153,31 +1181,254 @@ async function submitProof(proof: ProofData) {
 
 ---
 
+## Q2 2026: Token Launch & Governance
+
+### $NTL Token Launch (June 2026)
+
+**Objective:** Launch governance token and transition to DAO-controlled protocol
+
+**Timeline:**
+- **May 2026:** Token contracts deployed, audited
+- **June 2026:** Public $NTL launch + Genesis Channel airdrop
+- **July 2026:** DAO governance activated
+
+**Token Utility:**
+- **Protocol Governance** - Vote on parameter changes, fee splits, treasury allocation
+- **Fee Discounts** - Stake $NTL for reduced verification fees (up to 20% off)
+- **Revenue Sharing** - Stakers earn additional yield from protocol revenue
+- **Genesis Channel Upgrades** - Burn $NTL to increase channel capacity or routing weight
+
+**Token Economics:**
+
+**Total Supply:** 1,000,000,000 $NTL (fixed supply, no inflation)
+
+| Allocation | % | Tokens | Vesting | Purpose |
+|------------|---|--------|---------|---------|
+| **Genesis Channel Holders** | 25% | 250,000,000 | 30% immediate, 70% linear 12mo | Reward infrastructure owners |
+| **Legendary Founders (First 50)** | 5% | 50,000,000 | 50% immediate, 50% linear 6mo | Bonus for earliest supporters |
+| **Team & Advisors** | 20% | 200,000,000 | 2-year linear vest (6mo cliff) | Long-term alignment |
+| **DAO Treasury** | 30% | 300,000,000 | Governance-controlled | Ecosystem development |
+| **Liquidity Provision** | 10% | 100,000,000 | Immediate (locked in DEX) | Trading pairs (ETH/NTL, USDC/NTL) |
+| **Ecosystem Grants** | 10% | 100,000,000 | 4-year linear vest | Developer incentives, integrations |
+
+**Genesis Channel Holder Distribution:**
+
+**Tier Weights:**
+- Sentinel: 1.0x (baseline allocation)
+- Guardian: 1.5x (50% more tokens)
+- Sovereign: 2.0x (100% more tokens)
+
+**Legendary Founder Multiplier:**
+- 3x bonus on tier weight (stackable)
+- Applied to separate 5% allocation pool
+
+**Hold Duration Bonus:**
+- +10% tokens per month held before token launch (max +50%)
+- Calculated from Genesis Channel purchase date to June 2026
+
+**Example Allocations:**
+
+```
+Base allocation per Sentinel channel: ~83,333 $NTL (250M / 3,000 weight units)
+
+Regular Sentinel (held 0 months):
+  83,333 $NTL
+
+Regular Guardian (held 3 months):
+  83,333 × 1.5 (tier) × 1.3 (hold bonus) = 162,500 $NTL
+
+Legendary Sovereign (held 5 months):
+  Base: 83,333 × 2.0 (tier) × 1.5 (max hold) = 250,000 $NTL
+  Legendary bonus: 50M / 50 channels = 1,000,000 $NTL additional
+  Total: 1,250,000 $NTL
+
+Top allocation (Legendary Sovereign, 5+ months):
+  ~1.25M $NTL (~0.125% of supply)
+```
+
+**Vesting Schedule:**
+
+**Genesis Channel Holders:**
+- 30% unlocked at launch (tradeable immediately)
+- 70% vested linearly over 12 months
+- Claimable weekly (reduces gas fees)
+
+**Legendary Founders:**
+- 50% unlocked at launch (tradeable immediately)
+- 50% vested linearly over 6 months
+- Priority unlock for earliest supporters
+
+**Team:**
+- 0% at launch (6-month cliff)
+- After cliff: Linear vest over 24 months
+- Total: 30-month vesting period
+
+**DAO Governance Activation:**
+
+**Governance Parameters (Votable):**
+- Fee distribution split (currently 70/30)
+- Verification pricing ranges
+- Channel routing weights
+- Treasury spending proposals
+- Protocol upgrades
+- New vertical expansions
+
+**Voting Mechanism:**
+- Snapshot (off-chain signaling)
+- On-chain execution for critical changes
+- 1 $NTL = 1 vote
+- Quorum: 10M $NTL minimum
+- Proposal threshold: 1M $NTL to propose
+
+**Genesis Channel Holder Benefits:**
+- Weighted voting power (Genesis Channel + $NTL holdings combined)
+- Proposal priority (Genesis holders can fast-track votes)
+- Veto power on fee structure changes (requires 51% of Genesis holders)
+
+---
+
+## Q3 2026: Token Utility Expansion & Multi-Vertical
+
+### Staking for Boosted Earnings (July 2026)
+
+**Staking Mechanism:**
+```solidity
+// Stake $NTL to boost Genesis Channel earnings
+function stakeForBoost(uint16 channelId, uint256 amount) external {
+    require(channels[channelId].owner == msg.sender, "Not channel owner");
+    
+    // Transfer $NTL to staking contract
+    ntlToken.transferFrom(msg.sender, address(this), amount);
+    
+    // Calculate boost multiplier (max 20% boost)
+    uint256 boostPercent = min(amount / 1_000_000, 20);
+    channels[channelId].earningsBoost = boostPercent;
+}
+```
+
+**Staking Tiers:**
+- Stake 1M $NTL = +10% earnings boost
+- Stake 2M $NTL = +20% earnings boost (max)
+- Unstake anytime (7-day cooldown)
+
+**Example:**
+```
+Genesis Channel earns $1,000/month base
+Stake 2M $NTL → +20% boost
+New earnings: $1,200/month
+
+ROI: $200/month extra = $2,400/year
+2M tokens @ $0.05 = $100K invested
+APY from boost: 2.4%
++ APY from verification growth
++ APY from token appreciation
+```
+
+### Multi-Vertical Expansion (Q3 2026)
+
+**DAO Governance Verification:**
+- Use $NTL as collateral for sybil-resistant voting
+- Lock $NTL to participate in other DAO votes
+- Earn fees from governance verification services
+
+**Compliance-Lite Verification:**
+- Stake $NTL to access compliance verification circuits
+- Age verification, region compliance, accredited investor status
+- Premium pricing tier ($1-10 per verification vs. $0.10-0.50 for AI agents)
+
+**Multi-Agent Systems:**
+- $NTL required to register agent swarms
+- Collateral for autonomous agent coordination
+- Slashing for malicious agent behavior
+
+### Developer Ecosystem Grants (August-September 2026)
+
+**Treasury Allocation:**
+- $3M-5M in $NTL grants (10-15M tokens @ estimated price)
+- AI platform integration bounties
+- Open source circuit contributions
+- Community-built tools and SDKs
+
+**Grant Categories:**
+- **Integration Grants:** $50K-100K for major AI platforms
+- **Developer Tools:** $10K-25K for SDKs, libraries, documentation
+- **Research Grants:** $25K-50K for novel ZK circuit designs
+- **Community Grants:** $5K-15K for content, tutorials, educational materials
+
+---
+
+## Q4 2026: Scale, DAO Maturity & Cross-Chain
+
+### Protocol Scale (October-December 2026)
+
+**Targets:**
+- 10M+ monthly verifications
+- 50+ platform integrations
+- $100K-200K monthly protocol revenue
+- $70K-140K monthly distributed to Genesis Channel holders
+- 5,000+ $NTL holders
+
+### Full DAO Control (October 2026)
+
+**DAO Powers Activated:**
+- Treasury management (100% community-controlled)
+- Fee structure adjustments
+- New vertical approvals
+- Smart contract upgrades (via governance vote)
+- Team budget allocation
+
+**Governance Stats Target:**
+- 50+ proposals voted on
+- 10M+ $NTL participating in votes
+- 70%+ Genesis Channel holder participation
+
+### Cross-Chain Expansion (November-December 2026)
+
+**Target Networks:**
+- Arbitrum (low-cost alternative to Base)
+- Optimism (OP Stack ecosystem)
+- Polygon (enterprise partnerships)
+
+**Cross-Chain Benefits:**
+- Lower fees for high-volume users
+- Geographic redundancy
+- Ecosystem diversification
+- $NTL bridging across chains
+
+---
+
 ## Future Roadmap (2027+)
 
-### Q1 2027: International Expansion
-* Multi-language support
-* Regional partnerships
-* Compliance with international regulations
-* Cross-chain expansion (Arbitrum, Polygon, Optimism)
+### Q1 2027: International Expansion & Compliance
+- Multi-language support (Spanish, Mandarin, Japanese)
+- Regional partnerships (EU, APAC, LATAM)
+- Regulatory compliance frameworks
+- International legal entity structure
 
-### Q2 2027: Mobile SDK
-* React Native SDK
-* iOS/Android native libraries
-* Simplified proof generation for mobile agents
-* Enhanced mobile dashboard
+### Q2 2027: Mobile-First Development
+- React Native SDK
+- iOS/Android native libraries
+- Mobile-optimized proof generation (<3s on mobile)
+- Mobile Genesis Channel dashboard app
 
-### Q3 2027: Enterprise Features
-* Custom circuit development for enterprise customers
-* Private channel deployment
-* SLA guarantees
-* Dedicated support
+### Q3 2027: Enterprise & White-Label
+- Custom circuit development for enterprise clients
+- Private channel deployment (permissioned networks)
+- White-label verification solutions
+- Enterprise SLA guarantees (99.99% uptime)
 
-### Q4 2027: Governance Token
-* $NTL token launch
-* DAO formation
-* Community governance of protocol parameters
-* Enhanced channel holder benefits
+### Q4 2027: Protocol V2
+- Next-generation ZK circuits (PLONK or STARKs)
+- Sub-second proof generation
+- Recursive proof composition
+- Enhanced privacy features (multi-party computation)
+
+### 2028+: AI Agent Economy Infrastructure
+- Industry-standard verification protocol
+- 100M+ monthly verifications
+- 100+ platform integrations
+- Full ecosystem maturity
+- Potential protocol fork for specialized use cases
 
 ---
 
@@ -1198,7 +1449,7 @@ Nomad Trust Layer is building AI agent verification infrastructure that protects
 
 **This roadmap is subject to change based on development progress, security requirements, and market feedback.**
 
-**Last updated:** December 2025  
+**Last updated:** January 2026  
 **Next review:** February 2026
 
 *For technical questions: team@nomadtrust.io*
