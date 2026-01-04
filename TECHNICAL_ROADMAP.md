@@ -28,7 +28,7 @@ Nomad Trust Layer is building AI agent verification infrastructure powered by ze
 
 **Core Mission:** Enable cryptographic verification of AI agents without permanent identity systems.
 
-**Technical Foundation:** Customized Semaphore Protocol circuits deployed on Base for cost-efficient, high-throughput proof validation.
+**Technical Foundation:** Custom AgentIdentity circuit built on Semaphore Protocol patterns, deployed on Base for cost-efficient, high-throughput proof validation.
 
 **First Vertical:** AI agent verification (API abuse prevention, agent marketplace trust, multi-agent coordination).
 
@@ -138,34 +138,33 @@ Nomad Trust Layer is building AI agent verification infrastructure powered by ze
 
 ### Milestone 1: Circuit Development (Weeks 1-4)
 
-**Objective:** Create custom Semaphore Protocol circuits for AI agent verification.
+**Objective:** Productionize AgentIdentity circuit for Base deployment.
 
 **Deliverables:**
 
-1. **AgentVerificationProof Circuit**
-   * Simplified Semaphore circuit (~80 lines Circom)
-   * Remove Merkle tree membership requirement
-   * Focus on agent identity commitment uniqueness
-   * Optimize for single-action verification
-   * Comprehensive constraint testing
+1. **Groth16 Proving Key Generation**
+   * Run Powers of Tau ceremony (or use existing)
+   * Generate proving and verification keys
+   * Test end-to-end proof generation
+   * Validate security parameters
 
-2. **WitnessCalculator Implementation**
-   * JavaScript witness generation library
-   * Browser-compatible WASM compilation
-   * ~100ms proof generation target
-   * Efficient memory usage
+2. **Performance Optimization**
+   * Further constraint reduction (target: <400 constraints)
+   * Benchmark across devices (desktop, mobile, cloud)
+   * WASM compilation for browser compatibility
+   * Memory usage optimization
 
-3. **Testing Suite**
-   * Unit tests for all constraints
-   * Edge case validation
-   * Performance benchmarking
+3. **Testing Suite Expansion**
+   * Unit tests for all edge cases (>100 test cases)
+   * Property-based testing
+   * Performance regression testing
    * Security analysis
 
 **Success Criteria:**
-* Circuit compiles without errors
-* All constraints verified
-* Proof generation < 2 seconds client-side
+* Proving keys generated successfully
+* Proof generation < 5 seconds client-side
 * Verification < 100ms on-chain
+* All tests passing
 
 ---
 
@@ -177,7 +176,7 @@ Nomad Trust Layer is building AI agent verification infrastructure powered by ze
 
 1. **Verifier Contract**
    * Auto-generated from circuit (SnarkJS)
-   * Deployed to Base mainnet
+   * Deployed to Base Sepolia testnet first
    * Gas-optimized verification
    * Event emission for tracking
 
@@ -201,7 +200,7 @@ Nomad Trust Layer is building AI agent verification infrastructure powered by ze
    * Withdrawal functions
 
 **Success Criteria:**
-* All contracts deployed to Base
+* All contracts deployed to Base testnet
 * Gas costs < $0.50 per verification
 * Round-robin proven mathematically fair
 * Fee distribution working correctly
@@ -289,7 +288,7 @@ Nomad Trust Layer is building AI agent verification infrastructure powered by ze
 
 1. **Circuit Audit**
    * Auditor: Trail of Bits, Veridise, or PSE Security
-   * Scope: Custom Semaphore circuits
+   * Scope: AgentIdentity circuit
    * Timeline: 1-2 weeks
    * Cost: $50K-$75K
 
@@ -693,51 +692,116 @@ contract FeeDistributor {
 
 ## ZK Circuit Specifications
 
-### Circuit Architecture
+### AgentIdentity Circuit
 
-**Based on Semaphore Protocol, customized for AI agent verification:**
+**Repository:** https://github.com/NomadTrustLayer/nomad-circuits
+
+### Current Implementation
+
+Built from Semaphore Protocol patterns, optimized for AI agent verification.
+
+Located in `circuits/agent-identity.circom`:
+
 ```circom
-pragma circom 2.1.0;
+pragma circom 2.0.0;
 
 include "circomlib/circuits/poseidon.circom";
 
-template AgentVerificationProof() {
-    // Private inputs (never revealed)
-    signal input agentSecret;
+template AgentIdentity() {
+    // Private input (agent's secret key)
+    signal input secret;
+    
+    // Public input (action identifier)
     signal input actionId;
     
-    // Public outputs (posted on-chain)
-    signal output agentCommitment;
-    signal output actionNullifier;
+    // Public outputs
+    signal output identityCommitment;
+    signal output nullifier;
     
-    // Generate agent identity commitment
-    component identityHasher = Poseidon(1);
-    identityHasher.inputs[0] <== agentSecret;
-    agentCommitment <== identityHasher.out;
+    // Identity commitment = Poseidon(secret)
+    component hasher1 = Poseidon(1);
+    hasher1.inputs[0] <== secret;
+    identityCommitment <== hasher1.out;
     
-    // Generate action nullifier (prevents double-verification)
-    component nullifierHasher = Poseidon(2);
-    nullifierHasher.inputs[0] <== agentSecret;
-    nullifierHasher.inputs[1] <== actionId;
-    actionNullifier <== nullifierHasher.out;
+    // Nullifier = Poseidon(secret, actionId)
+    component hasher2 = Poseidon(2);
+    hasher2.inputs[0] <== secret;
+    hasher2.inputs[1] <== actionId;
+    nullifier <== hasher2.out;
 }
 
-component main {public [actionId]} = AgentVerificationProof();
+component main = AgentIdentity();
 ```
 
 ### Circuit Properties
 
 **Complexity:**
-- **Constraints:** ~1,200 (2x Poseidon hash operations)
-- **Proof Generation Time:** ~2 seconds (client-side, browser/agent)
+- **Constraints:** 459 non-linear, 473 linear
+- **Proof Generation Time:** ~4-5 seconds (estimated, hardware-dependent)
 - **Proof Size:** 256 bytes (Groth16)
 - **Verification Gas:** ~250,000 gas (~$0.01-$0.02 on Base)
 
 **Security:**
-- **Soundness:** Attacker cannot forge proof without agentSecret
-- **Privacy:** agentSecret never revealed, only commitment posted
+- **Soundness:** Attacker cannot forge proof without knowing secret
+- **Privacy:** Agent secret never revealed, only commitment posted
 - **Uniqueness:** Same agent + same action = same nullifier = rejected
 - **Unlinkability:** Different actions produce different nullifiers
+
+**What it proves:** "I know the secret that generates this identity commitment, and this is my unique nullifier for this specific action" - all without revealing the secret itself.
+
+### Development Status
+
+**Current State:**
+- ✅ Core circuit implemented and tested
+- ✅ Compiles successfully (WASM + R1CS)
+- ✅ Constraint optimization complete (459 constraints)
+- ✅ Poseidon hash integration (audited primitives)
+- ⏳ Groth16 proving key generation (Q1 2026)
+- ⏳ Verifier contract deployment (Q1 2026)
+- ⏳ Security audit (Q1 2026)
+
+**Target Performance:**
+- Proof generation: <5 seconds (client-side)
+- Verification cost: <$0.02 gas (Base L2)
+- Throughput: 1,000+ verifications/hour per Genesis Channel
+
+### Production Roadmap (Q1 2026)
+
+**Weeks 1-2: Proving Key Generation**
+- Run Powers of Tau ceremony (or use existing ceremony)
+- Generate Groth16 proving key
+- Generate verification key
+- Test proof generation with real keys
+
+**Weeks 3-4: Smart Contract Deployment**
+- Auto-generate Solidity verifier from circuit (SnarkJS)
+- Deploy to Base Sepolia testnet
+- Test end-to-end proof verification
+- Integrate with Genesis Channel routing
+
+**Weeks 5-6: Performance Optimization**
+- Benchmark proof generation across devices
+- Further constraint optimization (target: <400 constraints)
+- WASM compilation for browser compatibility
+- Mobile device testing
+
+**Weeks 7-8: Integration Testing**
+- Build TypeScript SDK for proof generation
+- Create example integrations (AutoGPT, LangChain)
+- Load testing (10K+ proofs)
+- Cross-platform compatibility testing
+
+**Weeks 9-10: Security Audit**
+- Circuit constraint analysis
+- Cryptographic primitive verification
+- Smart contract security review
+- Penetration testing
+
+**Weeks 11-12: Production Deployment**
+- Deploy verifier to Base mainnet
+- Genesis Channel integration
+- First live AI agent verifications
+- Real-time monitoring and analytics
 
 ### Proof Generation Flow
 
@@ -748,25 +812,25 @@ import { groth16 } from "snarkjs";
 async function generateAgentProof(agentSecret, actionId) {
     // Prepare circuit inputs
     const inputs = {
-        agentSecret: agentSecret,
+        secret: agentSecret,
         actionId: actionId
     };
     
     // Generate witness
     const { proof, publicSignals } = await groth16.fullProve(
         inputs,
-        "circuits/agent_verification.wasm",
-        "circuits/agent_verification_final.zkey"
+        "circuits/agent-identity.wasm",
+        "circuits/agent-identity_final.zkey"
     );
     
     // Extract public outputs
-    const agentCommitment = publicSignals[0];
-    const actionNullifier = publicSignals[1];
+    const identityCommitment = publicSignals[0];
+    const nullifier = publicSignals[1];
     
     return {
         proof,
-        agentCommitment,
-        actionNullifier
+        identityCommitment,
+        nullifier
     };
 }
 ```
@@ -789,24 +853,24 @@ contract ProofValidator {
     function validateAgentAction(
         uint256[8] calldata proof,
         uint256 actionId,
-        uint256 agentCommitment,
-        uint256 actionNullifier
+        uint256 identityCommitment,
+        uint256 nullifier
     ) external returns (bool) {
         // Check nullifier hasn't been used
-        require(!nullifierUsed[actionNullifier], "Agent action already verified");
+        require(!nullifierUsed[nullifier], "Agent action already verified");
         
         // Verify ZK proof
         bool isValid = verifier.verifyProof(
             [proof[0], proof[1]],
             [[proof[2], proof[3]], [proof[4], proof[5]]],
             [proof[6], proof[7]],
-            [actionId, agentCommitment, actionNullifier]
+            [actionId, identityCommitment, nullifier]
         );
         
         require(isValid, "Invalid proof");
         
         // Mark nullifier as used
-        nullifierUsed[actionNullifier] = true;
+        nullifierUsed[nullifier] = true;
         
         return true;
     }
@@ -830,8 +894,8 @@ Authorization: Bearer {API_KEY}
 {
   "proof": [...],
   "actionId": "0x...",
-  "agentCommitment": "0x...",
-  "actionNullifier": "0x..."
+  "identityCommitment": "0x...",
+  "nullifier": "0x..."
 }
 
 Response:
@@ -970,13 +1034,12 @@ async function generateAgentVerificationProof(
   actionId: string
 ): Promise<ProofData> {
   const proof = await generateProof({
-    circuit: 'agent_verification',
+    circuit: 'agent_identity',
     privateInputs: {
-      agentSecret,
+      secret: agentSecret,
     },
     publicInputs: {
-      actionId,
-      timestamp: Date.now(),
+      actionId: actionId,
     },
   });
   
@@ -1053,12 +1116,11 @@ async function submitProof(proof: ProofData) {
 
 ### Q1 2026: Foundation (12 Weeks)
 
-**Weeks 1-4: Circuit Development**
-- [ ] Set up Circom development environment
-- [ ] Implement AgentVerificationProof circuit
-- [ ] Write circuit tests (>100 test cases)
-- [ ] Optimize for proof generation speed
-- [ ] Generate proving and verifying keys
+**Weeks 1-4: Circuit Production Ready**
+- [ ] Generate Groth16 proving keys
+- [ ] Deploy verifier to Base Sepolia
+- [ ] Performance optimization (<5s proofs)
+- [ ] Cross-platform testing
 
 **Weeks 5-6: Smart Contract Development**
 - [ ] Initialize Hardhat/Foundry project
@@ -1120,7 +1182,7 @@ async function submitProof(proof: ProofData) {
 - Solidity 0.8.20+
 
 **Zero-Knowledge:**
-- Circom 2.1+
+- Circom 2.0+
 - SnarkJS
 - Groth16 proving system
 - Powers of Tau trusted setup
@@ -1158,7 +1220,7 @@ async function submitProof(proof: ProofData) {
 ### Technical Metrics (End of 2026)
 
 * **Uptime:** 99.9%+
-* **Proof generation time:** < 2 seconds
+* **Proof generation time:** < 5 seconds
 * **Verification cost:** < $0.50 (including gas)
 * **API response time:** < 200ms
 * **Active channels:** 950+/1000
