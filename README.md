@@ -14,7 +14,7 @@ Nomad Trust Layer is building **zero-knowledge proof verification infrastructure
 
 ### Core Innovation
 
-**AI agent verification** powered by customized Semaphore Protocol circuits deployed on Base for low-cost, high-throughput proof validation.
+**AI agent verification** powered by custom ZK circuits built on Semaphore Protocol patterns, deployed on Base for low-cost, high-throughput proof validation.
 
 **Key Differentiators:**
 
@@ -169,36 +169,39 @@ When you purchase a Genesis Channel, you own:
 
 ## 🏗️ Technical Architecture
 
-### Built on Battle-Tested Cryptography
+### Custom ZK Circuit for AI Agents
 
-**Base:** [Semaphore Protocol](https://semaphore.pse.dev/)
+**Repository:** [nomad-circuits](https://github.com/NomadTrustLayer/nomad-circuits)
 
-* MIT Licensed, open source
-* Audited by Trail of Bits, Veridise, PSE Security
-* Production-tested by major Web3 projects (millions of proofs verified)
+**AgentIdentity Circuit**
+* Built from Semaphore Protocol patterns
+* 459 constraints (optimized for efficiency)
+* Poseidon hash (audited by Trail of Bits, Veridise)
+* Identity commitments + nullifier generation
 
-**Built on Semaphore Protocol (Production-Ready ZK)**
-* Industry-standard zero-knowledge proof system
-* Audited by Trail of Bits, Veridise, PSE Security
-* Millions of proofs verified in production
-* Agent identity commitments + nullifier generation
-* Privacy guarantees proven cryptographically
+**Development Status:**
+- ✅ Core circuit implemented and tested
+- ✅ Compiles successfully (WASM + R1CS)
+- ✅ Constraint optimization complete
+- ⏳ Groth16 proving key generation (Q1 2026)
+- ⏳ Verifier contract deployment (Q1 2026)
+- ⏳ Security audit (Q1 2026)
 
-**Nomad's Innovation: Economic & Routing Layer**
-* Genesis Channel infrastructure ownership (1,000 NFTs)
+**Target Performance:**
+* Proof generation: <5 seconds (client-side)
+* Verification cost: <$0.02 gas (Base L2)
+* Throughput: 1,000+ verifications/hour per Genesis Channel
+
+### Genesis Channel Infrastructure
+
+**Economic & Routing Layer:**
+* 1,000 Genesis Channel NFTs (infrastructure ownership)
 * Round-robin routing with tier-weighted capacity
 * Automatic 70/30 fee distribution
 * Real-time earnings tracking
 * Non-custodial architecture (you control funds)
 
-**Roadmap: Custom ZK Extensions (Q3-Q4 2026)**
-* Compliance-lite verification (age, region, accreditation)
-* Premium agent tiers (enhanced security guarantees)
-* Multi-party computation (agent swarm coordination)
-* Enterprise features (custom proof requirements)
-
 **Deployment:** Base (Ethereum L2)
-
 * Sub-second verification times
 * ~$0.01-$0.02 gas fees (vs $20-100 on Ethereum mainnet)
 * Ethereum ecosystem security and credibility
@@ -254,7 +257,7 @@ struct GenesisChannel {
 | Phase | Timeframe | Milestone |
 | --- | --- | --- |
 | **Genesis Channel Launch** | December 2025 | 1,000 Genesis Channels available • Founding community established • Development funded |
-| **Circuit Development** | Q1 2026 (Weeks 1-4) | Custom Semaphore circuits • AI agent optimization • Testing |
+| **Circuit Development** | Q1 2026 (Weeks 1-4) | Proving keys generated • Verifier deployed • Performance optimization |
 | **Smart Contracts** | Q1 2026 (Weeks 5-6) | Solidity verifier deployed • Genesis Channel routing • Fee distribution |
 | **Dashboard Development** | Q1 2026 (Weeks 7-8) | Channel holder dashboard • Real-time earnings tracking • Withdrawal interface |
 | **Integration & QA** | Q1 2026 (Weeks 9-10) | End-to-end testing • Performance benchmarking • AI platform testing |
@@ -350,7 +353,7 @@ struct GenesisChannel {
 
 * **10M+** AI agent verifications processed
 * **99.9%+** API uptime
-* **<2 seconds** proof generation time
+* **<5 seconds** proof generation time
 * **<$0.50** verification cost (gas included)
 * **950+/1000** active Genesis Channels earning
 
@@ -374,8 +377,8 @@ struct GenesisChannel {
 
 **Circuit Security:**
 
-* Built on audited Semaphore Protocol
-* Simplification reduces attack surface
+* Built on Semaphore Protocol patterns (audited primitives)
+* Custom optimization for AI agents
 * Independent audits scheduled Q1 2026 (Trail of Bits or PSE Security)
 
 **Smart Contract Security:**
@@ -415,6 +418,7 @@ struct GenesisChannel {
 * **[Development Roadmap](ROADMAP.md)** - Week-by-week development plan
 * **[Performance Benchmarks](BENCHMARKS.md)** - Circuit and contract performance metrics
 * **[Integration Guide](INTEGRATIONS.md)** - Developer integration examples
+* **[ZK Circuit Repository](https://github.com/NomadTrustLayer/nomad-circuits)** - AgentIdentity circuit implementation
 * **[Genesis Channel Architecture](TECHNICAL_ROADMAP.md#genesis-channel-system)** - Smart contract design & routing
 * **[Security Policy](SECURITY.md)** - Security practices & reporting
 * **[Contributing Guidelines](CONTRIBUTING.md)** - How to contribute
