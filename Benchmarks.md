@@ -1,23 +1,23 @@
 # Performance Benchmarks
 
 **Last Updated:** January 5, 2026  
-**Network:** Base Sepolia Testnet  
+**Network:** Base Sepolia Testnet (Deployment Planned)  
 **Status:** Active Development
 
-This document tracks Nomad Trust Layer's performance metrics across circuit implementation, smart contract operations, and API endpoints.
+This document tracks Nomad Trust Layer's performance targets and baseline metrics across circuit implementation, smart contract operations, and API endpoints.
 
 ---
 
 ## Executive Summary
 
-| Metric | Current | Target (Mainnet) | Status |
-|--------|---------|------------------|--------|
-| Proof Generation | 4.8s avg | <5s | ✅ On Track |
-| On-Chain Verification | 0.9s avg | <1s | ✅ On Track |
-| Gas Cost (Verification) | ~118k gas | <100k gas | 🔄 Optimization In Progress |
-| End-to-End Latency | 5.7s avg | <6s | ✅ On Track |
-| Throughput | 850 verifications/hour | 1000+/hour | 🔄 Scaling Tests Ongoing |
-| API Uptime | 99.2% | 99.9%+ | 🔄 Infrastructure Hardening |
+| Metric | Baseline/Target | Mainnet Goal | Status |
+|--------|-----------------|--------------|--------|
+| Proof Generation | 4.8s baseline | <5s | ✅ On Track |
+| On-Chain Verification | ~0.9s estimated | <1s | ✅ On Track |
+| Gas Cost (Verification) | ~118k gas (est.) | <100k gas | 🔄 Optimization Planned |
+| End-to-End Latency | ~6.3s projected | <7s | ✅ On Track |
+| Throughput | 850+ target | 1000+/hour | 🔄 Scaling Tests Scheduled |
+| API Uptime | Target: 99.2% | 99.9%+ | 🔄 Infrastructure Planning |
 
 ---
 
@@ -32,78 +32,91 @@ This document tracks Nomad Trust Layer's performance metrics across circuit impl
 - Proving system: Groth16
 - Curve: bn128
 
-**Proof Generation Performance (Base Sepolia Testnet)**
+**Proof Generation Performance Baseline**
 
-| Hardware | Proof Gen Time | Memory Usage | CPU Utilization |
+| Hardware | Projected Time | Memory Usage | CPU Utilization |
 |----------|----------------|--------------|-----------------|
-| M1 MacBook Pro (16GB) | 4.2s | 85MB | 65% |
-| Intel i7-12700K (32GB) | 3.8s | 78MB | 58% |
-| AWS t3.medium (4GB) | 6.8s | 120MB | 82% |
-| **Average (Consumer)** | **4.8s** | **94MB** | **68%** |
+| M1 MacBook Pro (16GB) | ~4.2s | ~85MB | ~65% |
+| Intel i7-12700K (32GB) | ~3.8s | ~78MB | ~58% |
+| AWS t3.medium (4GB) | ~6.8s | ~120MB | ~82% |
+| **Average (Consumer)** | **~4.8s** | **~94MB** | **~68%** |
 
-**Target:** <5s on consumer-grade hardware ✅ **ACHIEVED**
+**Target:** <5s on consumer-grade hardware ✅ **Baseline Established**
 
-### Recent Optimizations (January 5, 2026)
+### Optimization Targets (January 5, 2026)
 
-**Constraint Reduction:**
+**Constraint Reduction Strategy:**
 - Simplified Poseidon hash component instantiation
-- Removed redundant signal checks  
-- Optimized nullifier generation logic
+- Redundant signal check removal planned
+- Nullifier generation logic optimization
 
-**Performance Improvements:**
-- Proof generation: 4.8s avg (baseline established)
-- Memory footprint: 94MB avg (efficient for 459 constraints)
-- Constraint count: 459 non-linear, 473 linear (optimized from initial implementation)
+**Performance Targets:**
+- Proof generation: Maintain <5s baseline
+- Memory footprint: Optimize to <80MB (from 94MB)
+- Constraint count: Reduce to <400 total (from 459+473)
 
-**Next Steps:**
-- Target: Further reduce to <400 total constraints
-- ✅ WASM compilation completed (January 5, 2026)
-- Mobile device testing (iOS/Android)
+**Roadmap:**
+- Week 2-3: Further constraint optimization
+- Week 3-4: WASM compilation implementation
+- Week 5-8: Mobile device testing (iOS/Android)
 
-### WASM Compilation Support (January 5, 2026)
+### WASM Compilation Roadmap (Planned)
 
-**Implementation Complete:**
-- Circuit compiled to WebAssembly for browser environments
-- Witness generation now available in browser context
-- Eliminates need for server-side proving for web applications
+**Implementation Plan:**
+- Circuit compilation to WebAssembly for browser environments
+- Witness generation in browser context (eliminates server-side proving)
+- Client-side proof generation for web applications
 
-**Performance Improvements:**
-- Browser witness calculation: 180ms → 120ms (33% faster)
-- Memory usage: 94MB → 78MB (17% reduction)
-- Bundle size: 2.4MB compressed (gzip)
+**Target Performance Improvements:**
+- Browser witness calculation: 180ms → 120ms (33% faster target)
+- Memory usage: 94MB → 78MB (17% reduction target)
+- Bundle size: ~2.4MB compressed (gzip)
 
-**Browser Support:**
-- Chrome/Edge: ✅ Full support (WebAssembly 1.0)
-- Firefox: ✅ Full support
-- Safari: ✅ Full support (iOS 11+)
-- Opera: ✅ Full support
+**Planned Browser Support:**
+- Chrome/Edge: Full support (WebAssembly 1.0)
+- Firefox: Full support
+- Safari: Full support (iOS 11+)
+- Opera: Full support
 
-**Usage Example:**
+**Usage Pattern:**
 ```javascript
 import { generateWitness } from '@nomad-circuits/wasm';
 
-// Generate witness in browser
+// Generate witness in browser (coming Q1 2026)
 const witness = await generateWitness({
   secret: agentSecret,
   actionId: actionId
 });
-// ~120ms execution time
+// Target: ~120ms execution time
 ```
-### Testnet Deployment (January 5, 2026)
 
-**Base Sepolia Verifier Contract Deployed:**
-- Contract address: `0x...` (pending final deployment)
+**Implementation Timeline:**
+- Week 2-3: WASM compilation from Circom
+- Week 3-4: JavaScript wrapper functions
+- Week 4-5: Browser compatibility testing
+- Week 5-6: TypeScript SDK integration
+
+**Benefits for Developers:**
+- No backend required for proof generation
+- Client-side privacy preservation
+- Reduced infrastructure costs
+- Better user experience (faster loading)
+
+### Testnet Deployment Planning (Week 3-4)
+
+**Base Sepolia Verifier Preparation:**
+- Target deployment: Week 3-4 (January 2026)
 - Network: Base Sepolia Testnet
-- Deployment gas: ~3.2M gas
-- Status: ✅ Successfully deployed and verified
+- Estimated deployment gas: ~3.2M gas
+- Contract verification on Basescan planned
 
-**Deployment Details:**
-- Verifier contract auto-generated from AgentIdentity circuit
-- Groth16 verification logic implemented in Solidity
+**Deployment Strategy:**
+- Verifier contract auto-generation from AgentIdentity circuit
+- Groth16 verification logic implementation in Solidity
 - Gas-optimized pairing operations
 - Event emissions for proof verification tracking
 
-**Contract Functions:**
+**Contract Functions (Planned):**
 ```solidity
 // Main verification function
 function verifyProof(
@@ -123,97 +136,88 @@ function verifyAndStore(
 ) public returns (bool)
 ```
 
-**Testing Status:**
-- ✅ Proof verification working correctly
-- ✅ Gas costs within target (<120k per verification)
-- ✅ Nullifier storage tested (prevents replay attacks)
-- ✅ Integration with Genesis Channel routing pending
+**Testing Plan:**
+- Proof verification correctness validation
+- Gas cost measurement and optimization
+- Nullifier storage testing (replay attack prevention)
+- Integration with Genesis Channel routing
 
-**Next Steps:**
-- Genesis Channel registry deployment (Week 5-6)
-- Full integration testing (Week 9-10)
-- Mainnet deployment: March 2026
+**Timeline:**
+- Week 3-4: Testnet deployment
+- Week 5-6: Genesis Channel registry deployment
+- Week 9-10: Full integration testing
+- March 2026: Mainnet deployment
 
-**Integration Status:**
-- ✅ WASM module compiled from Circom circuit
-- ✅ JavaScript wrapper functions implemented
-- ✅ Browser compatibility testing complete
-- ⏳ TypeScript SDK integration (Q1 2026, Week 3)
+### Proof Verification Performance (Estimated)
 
-**Benefits for Developers:**
-- No backend required for proof generation
-- Client-side privacy preservation
-- Reduced infrastructure costs
-- Better user experience (faster loading)
+**On-Chain Verification Projections:**
+- Target verification time: ~0.9s
+- Estimated gas cost: ~118k gas
+- Target success rate: >99%
 
-### Proof Verification Performance
-
-**On-Chain Verification (Base Sepolia):**
-- Average verification time: 0.9s
-- Gas cost: ~118k gas
-- Success rate: 100% (no failed verifications in testing)
-
-**Gas Cost Breakdown:**
+**Gas Cost Breakdown (Estimated):**
 ```
-Contract call overhead:         21,000 gas
+Contract call overhead:         ~21,000 gas
 Groth16 pairing operations:     ~85,000 gas
 Nullifier storage (SSTORE):     ~20,000 gas
 Event emissions:                ~2,000 gas
 ----------------------------------------
-Total:                          ~118,000 gas
+Total (estimated):              ~118,000 gas
 ```
 
 **Optimization Targets:**
-- Batch verification support: Reduce per-proof cost by ~30% when batching
+- Batch verification support: Target 30% per-proof reduction
 - Nullifier optimization: Exploring cheaper storage patterns
-- **Target:** <100k gas per verification by March 2026
+- **Goal:** <100k gas per verification by March 2026
 
-### Witness Generation
+### Witness Generation Targets
 
-**Witness Calculation Performance:**
+**Witness Calculation Performance Goals:**
 ```javascript
-// Sample benchmark (JavaScript witness generation)
-Time to calculate witness:     180ms avg
-Memory peak:                   85MB
+// Target benchmark (JavaScript witness generation)
+Time to calculate witness:     <180ms
+Memory peak:                   <85MB
 Input size:                    ~2KB (agent_secret + action_id)
 Output size:                   ~48KB (full witness)
 ```
 
-**Optimization Notes:**
-- WASM compilation reduces witness gen by ~35% vs pure JS
-- Worker threads improve parallelization for batch operations
+**Optimization Strategy:**
+- WASM compilation: Target 35% improvement vs pure JS
+- Worker threads: Parallelization for batch operations
+- Memory management: Optimize allocation patterns
 
 ---
 
 ## Smart Contract Performance
 
-### GenesisChannelRegistry Contract
+### GenesisChannelRegistry Contract (Planned)
 
-**Contract Size:**
-- Bytecode size: ~14.2KB (well under 24KB limit)
-- Deployment cost: ~3.2M gas (~$0.32 on Base)
+**Contract Specifications:**
+- Target bytecode size: <14.2KB (well under 24KB limit)
+- Estimated deployment cost: ~3.2M gas (~$0.32 on Base)
+- Implementation: Solidity 0.8.20+
 
-**Key Operation Costs (Base Sepolia):**
+**Projected Operation Costs:**
 
-| Operation | Gas Cost | Est. Cost (100 gwei) |
-|-----------|----------|----------------------|
+| Operation | Estimated Gas | Est. Cost (100 gwei) |
+|-----------|---------------|----------------------|
 | Genesis Channel Registration | ~180k gas | ~$0.018 |
 | Proof Verification | ~118k gas | ~$0.012 |
 | Fee Distribution (70/30 split) | ~52k gas | ~$0.005 |
 | Channel Status Update | ~28k gas | ~$0.003 |
 | Withdraw Earnings | ~34k gas | ~$0.003 |
 
-**Round-Robin Routing Performance:**
+**Round-Robin Routing Design:**
 ```solidity
-// Routing algorithm benchmark
-Average routing decision:       ~15,000 gas
-Worst case (all channels full): ~45,000 gas
-Channel selection time:         <100ms
+// Routing algorithm (planned implementation)
+Average routing decision:       ~15,000 gas target
+Worst case (all channels full): ~45,000 gas max
+Channel selection time:         <100ms target
 ```
 
-### Fee Distribution Mechanism
+### Fee Distribution Mechanism (Planned)
 
-**Payment Flow Performance:**
+**Payment Flow Design:**
 ```
 Verification fee received:      $0.25 (example)
 Split calculation:              ~2,000 gas
@@ -224,7 +228,7 @@ Event emission:                 ~2,000 gas
 Total distribution cost:        ~46,000 gas (~$0.005)
 ```
 
-**Net Channel Owner Earnings:**
+**Projected Channel Owner Earnings:**
 - Gross: $0.175 (70% of $0.25)
 - Gas fees: ~$0.005
 - **Net: ~$0.17 per verification**
@@ -233,119 +237,119 @@ Total distribution cost:        ~46,000 gas (~$0.005)
 
 ## API Endpoint Performance
 
-### Verification API
+### Verification API (Planned)
 
 **Endpoint:** `POST /api/v1/verify`
 
-**Response Times (Base Sepolia):**
+**Target Response Times:**
 ```
-p50 (median):          4.8s
-p75:                   5.6s
-p90:                   7.2s
-p95:                   8.9s
-p99:                   12.8s
-Average:               5.7s
+p50 (median):          <5s
+p75:                   <6s
+p90:                   <8s
+p95:                   <10s
+p99:                   <15s
+Average target:        <7s
 ```
 
-**Latency Breakdown:**
+**Projected Latency Breakdown:**
 ```
-Proof generation (client-side):    4.8s
-API request roundtrip:             0.3s
-Smart contract verification:       0.9s
-Response processing:               0.3s
+Proof generation (client-side):    ~4.8s
+API request roundtrip:             ~0.3s
+Smart contract verification:       ~0.9s
+Response processing:               ~0.3s
 ----------------------------------------
-Total end-to-end:                  6.3s
+Total end-to-end target:           ~6.3s
 ```
 
-**Target:** <7s end-to-end ✅ **ACHIEVED**
+**Goal:** <7s end-to-end ✅ **Target Set**
 
-### Dashboard API
+### Dashboard API (Planned)
 
 **Endpoint:** `GET /api/v1/channels/{channelId}`
 
-**Response Times:**
+**Target Response Times:**
 ```
-p50:     120ms
-p90:     280ms
-p99:     650ms
-Average: 185ms
+p50:     <150ms
+p90:     <300ms
+p99:     <700ms
+Average: <200ms
 ```
 
-**WebSocket Performance (Real-Time Updates):**
+**WebSocket Performance Targets:**
 - Connection latency: <50ms
 - Update frequency: Every 2 seconds
 - Bandwidth: ~1KB/update
-- Concurrent connections tested: 1,000+
+- Concurrent connections: 1,000+ supported
 
 ---
 
 ## Network Load Testing
 
-### Concurrent Verification Tests
+### Planned Concurrent Verification Tests
 
-**Test Setup:**
+**Test Design:**
 - Network: Base Sepolia Testnet
-- Duration: 30 minutes
-- Verifications: 500 total
-- Concurrent requests: 10-50
+- Duration: 30 minutes per test
+- Target verifications: 500+ total
+- Concurrent requests: 10-100 range
 
-**Results:**
+**Success Criteria:**
 
-| Concurrent Requests | Success Rate | Avg Latency | p99 Latency | Errors |
-|---------------------|--------------|-------------|-------------|--------|
-| 10 | 100% | 5.8s | 9.2s | 0 |
-| 25 | 100% | 6.4s | 11.8s | 0 |
-| 50 | 98.2% | 7.9s | 18.3s | 9 (timeout) |
-| 100 | 92.1% | 12.4s | 28.7s | 79 (timeout) |
+| Concurrent Requests | Target Success Rate | Max Latency | Acceptable Errors |
+|---------------------|---------------------|-------------|-------------------|
+| 10 | >99% | <10s | <1% |
+| 25 | >98% | <12s | <2% |
+| 50 | >95% | <20s | <5% |
+| 100 | >90% | <30s | <10% |
 
-**Bottleneck Identified:** RPC rate limiting on Base Sepolia (not expected on mainnet with paid RPC endpoints)
+**Expected Bottleneck:** RPC rate limiting on testnet (not expected on mainnet with paid endpoints)
 
-**Throughput:**
-- Current capacity: ~850 verifications/hour (testnet)
-- Target capacity: 1,000+ verifications/hour (mainnet with optimized infrastructure)
+**Capacity Targets:**
+- Testnet capacity: ~850 verifications/hour
+- Mainnet target: 1,000+ verifications/hour with optimized infrastructure
 
-### Stress Test Results
+### Planned Stress Test
 
-**Test:** 10,000 verifications over 12 hours
+**Test Scenario:** 10,000 verifications over 12 hours
+
+**Success Criteria:**
 ```
 Total verifications:              10,000
-Successful:                       9,847 (98.47%)
-Failed (timeout):                 127 (1.27%)
-Failed (gas):                     26 (0.26%)
-Average latency:                  6.2s
-Total gas consumed:               ~1.18M gas
-Total cost:                       ~$118 (at 100 gwei Base)
+Target success rate:              >98%
+Acceptable timeout rate:          <2%
+Acceptable gas failures:          <0.5%
+Average latency target:           <7s
+Total gas budget:                 ~1.2M gas
+Total cost estimate:              ~$120 (at 100 gwei Base)
 ```
 
-**Failure Analysis:**
-- Timeouts: RPC rate limiting (testnet limitation)
-- Gas failures: Out-of-gas errors from edge case inputs (fixed)
+**Test Execution:** Scheduled for Week 10
 
 ---
 
 ## Storage & Database Performance
 
-### Channel Registry Storage
+### Channel Registry Storage (Planned)
 
-**On-Chain Storage Costs:**
+**On-Chain Storage Estimates:**
 ```
 Genesis Channel struct:           ~200 bytes
 Storage cost (new channel):       ~20,000 gas
 Total storage (1,000 channels):   ~20M gas (~$2,000 one-time)
 ```
 
-**Read Performance:**
+**Target Read Performance:**
 - Channel lookup by ID: <10ms (constant time)
-- Owner lookup by address: ~50ms (indexed)
+- Owner lookup by address: <50ms (indexed)
 
-### Off-Chain Database (PostgreSQL)
+### Off-Chain Database Design (PostgreSQL)
 
-**Tables:**
+**Planned Tables:**
 - `verifications`: Tracks all verification events
 - `channels`: Channel metadata and statistics
 - `earnings`: Channel earnings history
 
-**Query Performance:**
+**Target Query Performance:**
 ```
 Get channel earnings:             <5ms
 Get verification history:         <20ms (paginated)
@@ -364,13 +368,13 @@ Full-text search:                 <50ms
 
 ## SDK Performance
 
-### JavaScript/TypeScript SDK
+### JavaScript/TypeScript SDK (Planned)
 
-**Proof Generation (Browser):**
+**Proof Generation Pattern:**
 ```javascript
-import { NomadTrust } from '@nomad-trust/sdk';
+import { NomadTrust } from '@nomad-trust/sdk'; // Coming Q1 2026
 
-// Benchmark: Proof generation in browser
+// Projected benchmark: Proof generation in browser
 const startTime = performance.now();
 const proof = await NomadTrust.proveUniqueAgent({
   agentSecret: process.env.AGENT_SECRET,
@@ -379,22 +383,22 @@ const proof = await NomadTrust.proveUniqueAgent({
 const endTime = performance.now();
 
 console.log(`Proof generated in ${endTime - startTime}ms`);
-// Average: 4,800ms (4.8s)
+// Target: ~4,800ms (4.8s)
 ```
 
-**Browser Compatibility:**
-- Chrome/Edge: ✅ Full support, 4.8s avg
-- Firefox: ✅ Full support, 5.2s avg
-- Safari: ✅ Full support, 5.6s avg
-- Mobile (iOS): ⚠️ Slower, 8-12s (WebAssembly limitations)
+**Target Browser Compatibility:**
+- Chrome/Edge: Full support, ~4.8s target
+- Firefox: Full support, ~5.2s target
+- Safari: Full support, ~5.6s target
+- Mobile (iOS): ~8-12s (WebAssembly limitations expected)
 
-### Python SDK
+### Python SDK (Planned)
 
-**Proof Generation (Server-Side):**
+**Proof Generation Pattern:**
 ```python
-from nomad_trust import NomadTrust
+from nomad_trust import NomadTrust  # Coming Q1 2026
 
-# Benchmark: Proof generation in Python
+# Target benchmark: Proof generation in Python
 import time
 start = time.time()
 proof = NomadTrust.prove_unique_agent(
@@ -404,33 +408,33 @@ proof = NomadTrust.prove_unique_agent(
 end = time.time()
 
 print(f"Proof generated in {end - start:.2f}s")
-# Average: 4.2s (slightly faster via native bindings)
+# Target: ~4.2s (via native bindings)
 ```
 
 ---
 
 ## Comparison to Alternatives
 
-### Verification Speed
+### Verification Speed Projections
 
 | Solution | Avg Verification Time | Gas Cost | Privacy |
 |----------|------------------------|----------|---------|
-| **Nomad Trust Layer** | **5.7s** | **~$0.012** | **✅ ZK proofs** |
+| **Nomad Trust Layer** | **~6s (target)** | **~$0.012** | **✅ ZK proofs** |
 | Worldcoin | 15-30s | ~$0.05 | ⚠️ Biometric data |
 | OAuth 2.0 | <1s | $0 (off-chain) | ❌ Exposes credentials |
 | Centralized APIs | 2-5s | $0.50-$2 | ❌ Surveillance-based |
 
-**Key Advantages:**
-- Faster than biometric verification (Worldcoin)
+**Target Advantages:**
+- Faster than biometric verification
 - Cheaper than centralized APIs
-- Privacy-preserving (unlike OAuth/centralized solutions)
+- Privacy-preserving (unlike OAuth/centralized)
 - Purpose-built for AI agents (not humans)
 
 ---
 
 ## Optimization Roadmap
 
-### Q1 2026 Optimizations
+### Q1 2026 Optimization Targets
 
 **Circuit Optimizations:**
 - [ ] Reduce constraint count to <400 (from 459)
@@ -447,12 +451,12 @@ print(f"Proof generated in {end - start:.2f}s")
 **API Optimizations:**
 - [ ] CDN integration for global latency reduction
 - [ ] Caching layer for repeated verifications
-- [ ] Rate limiting improvements
+- [ ] Rate limiting strategy
 - [ ] WebSocket performance tuning
 
-### Q2 2026 Optimizations
+### Q2 2026 Scaling Targets
 
-**Scaling:**
+**Infrastructure:**
 - [ ] Horizontal scaling for 10,000+ verifications/hour
 - [ ] Multi-region deployment (US, EU, APAC)
 - [ ] Database sharding for 100M+ verifications
@@ -468,52 +472,52 @@ print(f"Proof generated in {end - start:.2f}s")
 
 ## Testing Methodology
 
-### Automated Testing
+### Planned Automated Testing
 
-**Circuit Tests:**
+**Circuit Tests (Scheduled Week 3-4):**
 - Unit tests: 85+ tests covering all circuit paths
 - Integration tests: 20+ end-to-end proof generation scenarios
 - Fuzzing: Random input generation (10,000+ test cases)
 
-**Smart Contract Tests:**
+**Smart Contract Tests (Scheduled Week 5-6):**
 - Unit tests: 120+ tests (Hardhat framework)
 - Integration tests: 30+ multi-contract interactions
 - Gas profiling: Automated gas cost tracking per commit
 
-**API Tests:**
+**API Tests (Scheduled Week 7-8):**
 - Unit tests: 200+ endpoint tests
 - Load tests: Automated stress testing (1000+ concurrent requests)
 - End-to-end tests: Full user flows (proof gen → verification → payment)
 
-### Performance Regression Tracking
+### Performance Regression Tracking (Planned)
 
-**CI/CD Pipeline:**
-- Automated benchmarks run on every commit
+**CI/CD Pipeline Design:**
+- Automated benchmarks on every commit
 - Gas cost regression alerts (>5% increase triggers warning)
 - Latency regression alerts (>10% increase triggers warning)
 
-**Benchmark History:**
-- All metrics tracked in time-series database (InfluxDB)
-- Grafana dashboards for visualization
-- Weekly performance reports to team
+**Monitoring Infrastructure:**
+- Metrics: Time-series database (InfluxDB planned)
+- Visualization: Grafana dashboards
+- Reporting: Weekly performance reports
 
 ---
 
-## Known Limitations
+## Known Limitations & Mitigation
 
-### Current Bottlenecks
+### Expected Bottlenecks
 
 1. **RPC Rate Limits (Testnet)**
-   - Impact: Limits concurrent verifications to ~50/min
-   - Solution: Paid RPC endpoints on mainnet (Alchemy, QuickNode)
+   - Expected impact: Limits concurrent verifications to ~50/min
+   - Mitigation: Paid RPC endpoints on mainnet (Alchemy, QuickNode)
 
 2. **Browser WASM Performance**
-   - Impact: Mobile devices 2-3x slower than desktop
-   - Solution: Progressive enhancement, server-side proving for mobile
+   - Expected impact: Mobile devices 2-3x slower than desktop
+   - Mitigation: Progressive enhancement, server-side proving for mobile
 
 3. **Gas Costs on High-Congestion Days**
-   - Impact: Verification costs spike during network congestion
-   - Solution: Dynamic fee estimation, user notifications
+   - Expected impact: Verification costs spike during network congestion
+   - Mitigation: Dynamic fee estimation, user notifications
 
 ### Future Improvements
 
@@ -524,17 +528,43 @@ print(f"Proof generated in {end - start:.2f}s")
 
 ---
 
+## Development Status
+
+**Current Phase:** Architecture & Planning (Q1 2026, Weeks 1-2)
+
+**Completed:**
+- ✅ Circuit architecture designed (459 constraints)
+- ✅ Performance baseline established
+- ✅ Optimization targets identified
+- ✅ Repository structure created
+
+**In Progress:**
+- ⏳ WASM compilation implementation
+- ⏳ Testnet deployment preparation
+- ⏳ Test suite development
+- ⏳ SDK design
+
+**Upcoming:**
+- Week 3-4: Testnet deployment
+- Week 5-6: Genesis Channel registry
+- Week 7-8: Dashboard development
+- Week 9-10: Integration testing
+- Week 11-12: Security audits
+- March 2026: Mainnet launch
+
+---
+
 ## Reporting Issues
 
-**Found a performance regression?**
+**Found an issue or have optimization suggestions?**
 
-1. Open a GitHub issue with benchmark data
-2. Include test environment details (hardware, network, software versions)
-3. Tag with `performance` label
+1. Open a GitHub issue with details
+2. Include environment details (hardware, network, software versions)
+3. Tag with `performance` or `optimization` label
 
 **Performance monitoring:**
-- Real-time metrics: https://status.nomadtrust.io
-- Historical data: Available to Genesis Channel holders via dashboard
+- Real-time metrics: Coming post-launch
+- Historical data: Will be available to Genesis Channel holders
 
 ---
 
@@ -544,4 +574,4 @@ print(f"Proof generated in {end - start:.2f}s")
 
 ---
 
-**Next Benchmark Update:** March 2026 (post-mainnet launch)
+**Next Benchmark Update:** Post-testnet deployment (January 2026) and post-mainnet launch (March 2026)
